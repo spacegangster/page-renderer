@@ -2,23 +2,23 @@
   (:require [garden.core :refer [css]]
             [hiccup.page :refer [html5]]))
 
-(defn twitter-meta [{:keys [twitter-username twitter-card-type twitter-title
+(defn twitter-meta [{:keys [twitter-site twitter-card-type twitter-title
                             twitter-description twitter-image twitter-image-alt
                             title og-image og-description] :as renderable}]
-  (when twitter-username
+  (when twitter-site
   (let [twitter-card-type    (name (or twitter-card-type :summary))
         twitter-title        (or twitter-title title)
         twitter-description  (or twitter-description og-description)
         twitter-image        (or twitter-image og-image)]
   (list
     [:meta {:name "twitter:card" :value twitter-card-type}]
-    [:meta {:name "twitter:site" :value twitter-username}]
+    [:meta {:name "twitter:site" :value twitter-site}]
     (if twitter-description
       [:meta {:name "twitter:description" :value twitter-description}])
     (if twitter-image
       [:meta {:name "twitter:image" :value twitter-image}])
     (if twitter-image-alt
-      [:meta {:name "twitter:image:alt" :value twitter-username}])
+      [:meta {:name "twitter:image:alt" :value twitter-image-alt}])
     ))))
 
 (defn og-meta [{:keys [og-image og-title og-description og-url
@@ -43,7 +43,7 @@
    @param {string} renderable.og-image - absolute url to image for OpenGraph
    @param {string} renderable.og-url - OpenGraph page permalink
 
-   @param {string} renderable.twitter-username - twitter @username
+   @param {string} renderable.twitter-site - twitter @username
    @param {keyword} renderable.twitter-card-type - twitter card type
     [:summary (default), :summary_large_image, :app, :player]
    @param {string} renderable.twitter-description - twitter card description
@@ -54,8 +54,7 @@
    @param {string} renderable.stylesheet - stylesheet filename
    @param {string} renderable.script - script name
    @param {string} renderable.head-tags - data structure to render into HTML of the document's head"
-  [{:keys [body title head-tags stylesheet script og-image garden-css
-           twitter-username twitter-card-type] :as renderable}]
+  [{:keys [body title head-tags stylesheet script og-image garden-css] :as renderable}]
   (let [analytics (get renderable :analytics true)
         inline-css (if garden-css (css garden-css))]
   (html5
