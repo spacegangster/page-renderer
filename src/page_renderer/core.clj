@@ -32,11 +32,20 @@
       [:meta {:name "og:description" :value og-description}])
     (if og-image [:meta {:name "og:image" :value og-image}]))))
 
+(defn- provide-default-props [{:keys [twitter-description og-description meta-description] :as renderable}]
+  (assoc renderable
+         :twitter-description (or twitter-description meta-description og-description)
+         :og-description (or og-description meta-description)
+         :meta-description (or meta-description og-description)))
+
 (defn render-page
   "Render a page
    @param {hash-map} renderable
    @param {vector} renderable.body - data structure for Hiccup to render into HTML of the document's body
    @param {string} renderable.title - content for title tag
+
+   @param {string} renderable.meta-description - meta description
+   @param {string} renderable.meta-keywords - meta keywords
 
    @param {string} renderable.og-title - OpenGraph title
    @param {string} renderable.og-description - OpenGraph description
@@ -54,13 +63,18 @@
    @param {string} renderable.stylesheet - stylesheet filename
    @param {string} renderable.script - script name
    @param {string} renderable.head-tags - data structure to render into HTML of the document's head"
-  [{:keys [body title head-tags stylesheet script og-image garden-css] :as renderable}]
-  (let [analytics (get renderable :analytics true)
+  [renderable]
+  (let [renderable (provide-default-props renderable)
+        {:keys [body title head-tags stylesheet script og-image garden-css
+                meta-description meta-keywords]} renderable
+        analytics (get renderable :analytics true)
         inline-css (if garden-css (css garden-css))]
   (html5
     [:head
       [:meta {:charset "utf-8"}]
       [:link {:rel "icon", :type "image/png", :href "/favicon.png"}]
+      [:meta {:name "description" :content meta-description}]
+      [:meta {:name "keywords" :content meta-keywords}]
       [:meta {:name "viewport", :content "width=device-width, initial-scale=1, maximum-scale=1"}]
       head-tags
       (if inline-css [:style inline-css])
