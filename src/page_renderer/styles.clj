@@ -16,4 +16,7 @@
     {:text-decoration :none
      :color :inherit}]
    ["img, image, video"
+     {:max-width :100%
+      :object-fit :cover}]
+   [:iframe
      {:max-width :100%}]])
