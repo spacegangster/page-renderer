@@ -1,6 +1,25 @@
 (ns page-renderer.core
   (:require [garden.core :refer [css]]
+            [clojure.java.io :as io]
+            [clojure.string :as s]
             [hiccup.page :refer [html5]]))
+
+(defn cache-bust
+  "Try to cachebust the asset by supplying mtime parameter.
+   Only works with absolute paths."
+  [asset-path]
+  (let [is-abs-path? (re-find #"^\/" asset-path)]
+  (if-not is-abs-path?
+    asset-path
+    (let [path-in-resources (str "resources/public" asset-path)
+          file (io/file path-in-resources)
+          exists? (.exists file)
+          mtime (if exists? (.lastModified file))
+          busted-path (str asset-path "?mtime=" mtime)]
+      (if exists?
+        busted-path
+        asset-path)))))
+
 
 (defn twitter-meta [{:keys [twitter-site twitter-card-type twitter-title
                             twitter-description twitter-image twitter-image-alt
@@ -66,24 +85,25 @@
   [renderable]
   (let [renderable (provide-default-props renderable)
         {:keys [body title head-tags stylesheet script og-image garden-css
-                meta-description meta-keywords]} renderable
+                meta-description meta-keywords favicon]} renderable
         analytics (get renderable :analytics true)
         inline-css (if garden-css (css garden-css))]
   (html5
     [:head
       [:meta {:charset "utf-8"}]
-      [:link {:rel "icon", :type "image/png", :href "/favicon.png"}]
+      (if favicon
+        [:link {:rel "icon", :type "image/png", :href favicon}])
       [:meta {:name "description" :content meta-description}]
       [:meta {:name "keywords" :content meta-keywords}]
       [:meta {:name "viewport", :content "width=device-width, initial-scale=1, maximum-scale=1"}]
       head-tags
       (if inline-css [:style inline-css])
-      (if script [:script {:src script, :async true}])
+      (if script [:script {:src (cache-bust script), :async true}])
       [:title title]
       (twitter-meta renderable)
       (og-meta renderable)
       (if stylesheet
-         [:link {:rel "stylesheet" :type "text/css" :href stylesheet}])]
+         [:link {:rel "stylesheet" :type "text/css" :href (cache-bust stylesheet)}])]
     body)))
 
 (defn respond-page

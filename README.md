@@ -3,10 +3,15 @@
 A Clojure library designed to render HTML pages with styles using only Clojure.
 Simplify your workflow with page rendering -- no more external preprocessors,
 no more manual work to set page titles and metadata. Want a quick way to render
-page? Just write it in plain Clojure, starting with one namespace.
+a modern fancy page? Just write it in plain Clojure, starting with one namespace.
 Built with top-notch [Hiccup (HTML rendering)](https://github.com/weavejester/hiccup) and
 [Garden (CSS generator)](https://github.com/noprompt/garden) libraries Page-Renderer
 enables you to do simple things quickly. See usage.
+
+## Features
+- Clojure-only option for HTML and CSS rendering
+- Support for Open Graph and Twitter metadata
+- Built-in cachebusting for external js and css files
 
 ## Usage
 

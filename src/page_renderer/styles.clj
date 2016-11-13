@@ -1,9 +1,16 @@
 (ns page-renderer.styles
-  (:require [clojure.string :as s]))
+  (:require [clojure.string :as s]
+            [garden.stylesheet :refer [at-media]]))
 
 (defn bem [base & modifiers]
   (let [modified (for [m modifiers] (str base "--" m))]
   {:class (str base " " (s/join " " modified))}))
+
+(defn at-desktop [& rules]
+  (at-media {:min-width :768px} rules))
+
+(defn at-mobile [& rules]
+  (at-media {:max-width :767px} rules))
 
 (def mini-reset
   ;Mini-reset + responsive images and video"
