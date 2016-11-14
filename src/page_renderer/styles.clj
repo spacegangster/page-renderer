@@ -2,9 +2,12 @@
   (:require [clojure.string :as s]
             [garden.stylesheet :refer [at-media]]))
 
-(defn bem [base & modifiers]
-  (let [modified (for [m modifiers] (str base "--" m))]
-  {:class (str base " " (s/join " " modified))}))
+(defn bem-str [base-class & modifiers]
+  (let [modified (for [m modifiers] (str base-class "--" m))]
+  (str base-class " " (s/join " " modified))))
+
+(defn bem [base-class & modifiers]
+  {:class (apply bem-str (cons base-class modifiers))})
 
 (defn at-desktop [& rules]
   (at-media {:min-width :768px} rules))

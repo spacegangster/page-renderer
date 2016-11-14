@@ -4,6 +4,11 @@
             [clojure.string :as s]
             [hiccup.page :refer [html5]]))
 
+
+(defn m [meta-name meta-value]
+  (if meta-value
+    [:meta {:name (name meta-name) :content meta-value}]))
+
 (defn cache-bust
   "Try to cachebust the asset by supplying mtime parameter.
    Only works with absolute paths."
@@ -30,41 +35,39 @@
         twitter-description  (or twitter-description og-description)
         twitter-image        (or twitter-image og-image)]
   (list
-    [:meta {:name "twitter:card" :value twitter-card-type}]
-    [:meta {:name "twitter:site" :value twitter-site}]
-    (if twitter-description
-      [:meta {:name "twitter:description" :value twitter-description}])
-    (if twitter-image
-      [:meta {:name "twitter:image" :value twitter-image}])
-    (if twitter-image-alt
-      [:meta {:name "twitter:image:alt" :value twitter-image-alt}])
+    (m "twitter:card" twitter-card-type)
+    (m "twitter:site" twitter-site)
+    (m "twitter:description" twitter-description)
+    (m "twitter:image" twitter-image)
+    (m "twitter:image:alt" twitter-image-alt)
     ))))
+
 
 (defn og-meta [{:keys [og-image og-title og-description og-url
                        title] :as renderable}]
   (let [og-title (or og-title title)]
   (list
-    [:meta {:name "og:title" :value og-title}]
-    (if og-url
-      [:meta {:name "og:url" :value og-url}])
-    (if og-description
-      [:meta {:name "og:description" :value og-description}])
-    (if og-image [:meta {:name "og:image" :value og-image}]))))
+    (m "og:title" og-title)
+    (m "og:url" og-url)
+    (m "og:description" og-description)
+    (m "og:image" og-image))))
 
 (defn- provide-default-props [{:keys [twitter-description og-description meta-description] :as renderable}]
   (assoc renderable
+         :favicon (or (:favicon renderable) "/favicon.png")
          :twitter-description (or twitter-description meta-description og-description)
          :og-description (or og-description meta-description)
          :meta-description (or meta-description og-description)))
+
 
 (defn render-page
   "Render a page
    @param {hash-map} renderable
    @param {vector} renderable.body - data structure for Hiccup to render into HTML of the document's body
+   @param {string} renderable.meta-title - content for title tag (preferred)
    @param {string} renderable.title - content for title tag
-
+   @param {string} renderable.meta-keywords - content for title tag
    @param {string} renderable.meta-description - meta description
-   @param {string} renderable.meta-keywords - meta keywords
 
    @param {string} renderable.og-title - OpenGraph title
    @param {string} renderable.og-description - OpenGraph description
@@ -85,21 +88,21 @@
   [renderable]
   (let [renderable (provide-default-props renderable)
         {:keys [body title head-tags stylesheet script og-image garden-css
-                meta-description meta-keywords favicon]} renderable
-        analytics (get renderable :analytics true)
+                meta-title meta-description meta-keywords favicon]} renderable
+        title      (or meta-title title)
+        analytics  (get renderable :analytics true)
         inline-css (if garden-css (css garden-css))]
   (html5
     [:head
       [:meta {:charset "utf-8"}]
-      (if favicon
-        [:link {:rel "icon", :type "image/png", :href favicon}])
-      [:meta {:name "description" :content meta-description}]
-      [:meta {:name "keywords" :content meta-keywords}]
-      [:meta {:name "viewport", :content "width=device-width, initial-scale=1, maximum-scale=1"}]
+      [:link {:rel "icon", :type "image/png", :href favicon}]
+      (m "viewport", "width=device-width, initial-scale=1, maximum-scale=1")
       head-tags
       (if inline-css [:style inline-css])
       (if script [:script {:src (cache-bust script), :async true}])
       [:title title]
+      (m :description meta-description)
+      (m :keywords meta-keywords)
       (twitter-meta renderable)
       (og-meta renderable)
       (if stylesheet
