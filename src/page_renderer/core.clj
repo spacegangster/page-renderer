@@ -27,20 +27,16 @@
 
 
 (defn twitter-meta [{:keys [twitter-site twitter-card-type twitter-title
-                            twitter-description twitter-image twitter-image-alt
-                            title og-image og-description] :as renderable}]
+                            twitter-description twitter-image twitter-image-alt] :as renderable}]
   (when twitter-site
-  (let [twitter-card-type    (name (or twitter-card-type :summary))
-        twitter-title        (or twitter-title title)
-        twitter-description  (or twitter-description og-description)
-        twitter-image        (or twitter-image og-image)]
   (list
     (m "twitter:card" twitter-card-type)
     (m "twitter:site" twitter-site)
+    (m "twitter:title" twitter-title)
     (m "twitter:description" twitter-description)
     (m "twitter:image" twitter-image)
     (m "twitter:image:alt" twitter-image-alt)
-    ))))
+    )))
 
 
 (defn og-meta [{:keys [og-image og-title og-description og-url
@@ -52,12 +48,31 @@
     (m "og:description" og-description)
     (m "og:image" og-image))))
 
-(defn- provide-default-props [{:keys [twitter-description og-description meta-description] :as renderable}]
+(defn- fix-underscore-keys [d]
+  (let [uscore-keys [:meta_title :meta_description :meta_og_image :meta_keywords
+                     :meta_tags :meta_social_description :meta_social_title]
+        fix-key (fn [k] (keyword (s/replace (name k) "_" "-")))
+        assoc-key
+          (fn [obj k]
+            (if (and (contains? d k) (not (contains? obj (fix-key k))))
+              (dissoc (assoc obj (fix-key k) (d k)) k)
+              obj))]
+  (reduce assoc-key d uscore-keys)))
+
+(defn- provide-default-props [{:keys [twitter-description twitter-title twitter-image twitter-card-type
+                                      og-description meta-description meta-social-description
+                                      title og-title meta-title meta-social-title
+                                      og-image meta-og-image] :as renderable}]
   (assoc renderable
-         :favicon (or (:favicon renderable) "/favicon.png")
-         :twitter-description (or twitter-description meta-description og-description)
-         :og-description (or og-description meta-description)
-         :meta-description (or meta-description og-description)))
+         :favicon             (or (:favicon renderable) "/favicon.png")
+         :twitter-title       (or twitter-title meta-social-title og-title)
+         :twitter-image       (or twitter-image og-image meta-og-image)
+         :twitter-description (or twitter-description meta-social-description meta-description)
+         :twitter-card-type   (or twitter-card-type "summary")
+         :og-title            (or og-title meta-social-title meta-title title)
+         :og-image            (or og-image meta-og-image)
+         :og-description      (or og-description meta-social-description meta-description)
+         :meta-description    (or meta-description meta-social-description og-description)))
 
 
 (defn render-page
@@ -86,7 +101,8 @@
    @param {string} renderable.script - script name
    @param {string} renderable.head-tags - data structure to render into HTML of the document's head"
   [renderable]
-  (let [renderable (provide-default-props renderable)
+  (let [renderable (-> renderable fix-underscore-keys provide-default-props)
+        _ (def t renderable)
         {:keys [body title head-tags stylesheet script og-image garden-css
                 meta-title meta-description meta-keywords favicon]} renderable
         title      (or meta-title title)
@@ -103,6 +119,7 @@
       [:title title]
       (m :description meta-description)
       (m :keywords meta-keywords)
+      (:meta-tags renderable)
       (twitter-meta renderable)
       (og-meta renderable)
       (if stylesheet
