@@ -2,25 +2,31 @@
   (:require [garden.core :refer [css]]
             [clojure.java.io :as io]
             [clojure.string :as s]
-            [hiccup.page :refer [html5]]))
+            [hiccup.page :refer [html5]]
+            [page-renderer.util :as u]))
 
+
+(defn or-text [& texts]
+  (first (filter seq texts)))
 
 (defn m [meta-name meta-value]
   (if meta-value
     [:meta {:name (name meta-name) :content meta-value}]))
 
-(defn cache-bust
-  "Try to cachebust the asset by supplying mtime parameter.
-   Only works with absolute paths."
-  [asset-path]
+(defn- -get-filepath [asset-path]
+  (str "resources/public" asset-path))
+
+(def launch-time (System/currentTimeMillis))
+
+(defn cache-bust [asset-path]
   (let [is-abs-path? (re-find #"^\/" asset-path)]
   (if-not is-abs-path?
-    asset-path
-    (let [path-in-resources (str "resources/public" asset-path)
-          file (io/file path-in-resources)
-          exists? (.exists file)
-          mtime (if exists? (.lastModified file))
-          busted-path (str asset-path "?mtime=" mtime)]
+    (str asset-path "?mtime=" launch-time)
+    (let [path-in-resources (-get-filepath asset-path)
+          file              (io/file path-in-resources)
+          exists?           (.exists file)
+          mtime             (if exists? (.lastModified file))
+          busted-path       (str asset-path "?mtime=" mtime)]
       (if exists?
         busted-path
         asset-path)))))
@@ -30,12 +36,12 @@
                             twitter-description twitter-image twitter-image-alt] :as renderable}]
   (when twitter-site
   (list
-    (m "twitter:card" twitter-card-type)
-    (m "twitter:site" twitter-site)
-    (m "twitter:title" twitter-title)
+    (m "twitter:card"        twitter-card-type)
+    (m "twitter:site"        twitter-site)
+    (m "twitter:title"       twitter-title)
     (m "twitter:description" twitter-description)
-    (m "twitter:image" twitter-image)
-    (m "twitter:image:alt" twitter-image-alt)
+    (m "twitter:image"       twitter-image)
+    (m "twitter:image:alt"   twitter-image-alt)
     )))
 
 
@@ -64,15 +70,41 @@
                                       title og-title meta-title meta-social-title
                                       og-image meta-og-image] :as renderable}]
   (assoc renderable
-         :favicon             (or (:favicon renderable) "/favicon.png")
-         :twitter-title       (or twitter-title meta-social-title og-title)
-         :twitter-image       (or twitter-image og-image meta-og-image)
-         :twitter-description (or twitter-description meta-social-description meta-description)
-         :twitter-card-type   (or twitter-card-type "summary")
-         :og-title            (or og-title meta-social-title meta-title title)
-         :og-image            (or og-image meta-og-image)
-         :og-description      (or og-description meta-social-description meta-description)
-         :meta-description    (or meta-description meta-social-description og-description)))
+         :favicon             (or-text (:favicon renderable) "/favicon.png")
+         :twitter-title       (or-text twitter-title meta-social-title og-title)
+         :twitter-image       (or-text twitter-image og-image meta-og-image)
+         :twitter-description (or-text twitter-description meta-social-description meta-description)
+         :twitter-card-type   (or-text twitter-card-type "summary")
+         :og-title            (or-text og-title meta-social-title meta-title title)
+         :og-image            (or-text og-image meta-og-image)
+         :og-description      (or-text og-description meta-social-description meta-description)
+         :meta-description    (or-text meta-description meta-social-description og-description)))
+
+(defn render-inline-sheets [filepath-or-vec]
+  (if (string? filepath-or-vec)
+    (render-inline-sheets [filepath-or-vec])
+    (for [filepath filepath-or-vec]
+      [:style (slurp (-get-filepath filepath))])))
+
+(defn render-scripts [script-sync async?]
+  (if script-sync
+    (if (string? script-sync)
+      (recur [script-sync] async?)
+      (for [script script-sync]
+        [:script {:src (cache-bust script) :async async?}]))))
+
+(defn render-scripts--sync [script-name]
+  (render-scripts script-name false))
+
+(defn render-scripts--async [script-name]
+  (render-scripts script-name true))
+
+(defn render-stylesheets [stylesheets]
+  (if stylesheets
+    (if (string? stylesheets)
+      (recur [stylesheets])
+      (for [stylesheet stylesheets]
+        [:link {:rel "stylesheet" :type "text/css" :href (cache-bust stylesheet)}]))))
 
 
 (defn render-page
@@ -97,34 +129,48 @@
    @param {string} renderable.twitter-image-alt - twitter image alt
 
    @param {string} renderable.garden-css - data structure for Garden CSS
-   @param {string} renderable.stylesheet - stylesheet filename
-   @param {string} renderable.script - script name
+   @param {string} renderable.stylesheet - stylesheet filename, will be plugged into the head, will cause
+    browser waiting for download.
+   @param {string/collection<string>} renderable.stylesheet-inline - stylesheet filename, will be inlined into the head.
+   @param {string} renderable.stylesheet-async - stylesheet filename, will be loaded asynchronously by script.
+   @param {string} renderable.script - script name, will be loaded asynchronously
+   @param {string} renderable.script-sync - script name, will be loaded synchronously
    @param {string} renderable.head-tags - data structure to render into HTML of the document's head"
   [renderable]
   (let [renderable (-> renderable fix-underscore-keys provide-default-props)
-        _ (def t renderable)
-        {:keys [body title head-tags stylesheet script og-image garden-css
+        {:keys [body title head-tags
+                garden-css
+                stylesheet stylesheet-inline stylesheet-async
+                script script-sync
                 meta-title meta-description meta-keywords favicon]} renderable
         title      (or meta-title title)
-        analytics  (get renderable :analytics true)
+        analytics?  (get renderable :analytics? true)
         inline-css (if garden-css (css garden-css))]
   (html5
     [:head
       [:meta {:charset "utf-8"}]
-      [:link {:rel "icon", :type "image/png", :href favicon}]
+      [:link {:rel "icon", :type "image/png", :href (cache-bust favicon)}]
       (m "viewport", "width=device-width, initial-scale=1, maximum-scale=1")
-      head-tags
-      (if inline-css [:style inline-css])
-      (if script [:script {:src (cache-bust script), :async true}])
+      (seq head-tags)
+      ;
+      (render-scripts--async script)
+      (render-scripts--sync script-sync)
+      ;
       [:title title]
       (m :description meta-description)
       (m :keywords meta-keywords)
       (:meta-tags renderable)
       (twitter-meta renderable)
       (og-meta renderable)
-      (if stylesheet
-         [:link {:rel "stylesheet" :type "text/css" :href (cache-bust stylesheet)}])]
-    body)))
+
+      ; Inline CSS and stylesheets
+      (render-stylesheets stylesheet)
+      ]
+      (if inline-css [:style#inline-css--garden inline-css])
+      (render-inline-sheets stylesheet-inline)
+    (conj body
+          (if stylesheet-async
+            (u/make-stylesheet-appender stylesheet-async))))))
 
 (defn respond-page
   "Renders a page and returns basic Ring response map"
