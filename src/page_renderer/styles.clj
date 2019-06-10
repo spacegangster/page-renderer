@@ -2,9 +2,14 @@
   (:require [clojure.string :as s]
             [garden.stylesheet :refer [at-media]]))
 
-(defn bem-str [base-class & modifiers]
-  (let [modified (for [m modifiers] (str base-class "--" m))]
-  (str base-class " " (s/join " " modified))))
+(defn bem-str [css-class-name & modifiers]
+  (let [base-class-name (name css-class-name)
+        -append
+        (fn [final-class-name modifier-name]
+          (if modifier-name
+            (str  final-class-name  " "  base-class-name "--" (name modifier-name))
+            final-class-name))]
+    (reduce -append base-class-name (flatten modifiers))))
 
 (defn bem [base-class & modifiers]
   {:class (apply bem-str (cons base-class modifiers))})
