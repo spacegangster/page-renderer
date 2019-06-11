@@ -2,6 +2,9 @@
 
 ##### HTML pages with proper meta and styles in pure Clojure
 
+[![Clojars Project](https://img.shields.io/clojars/v/page-renderer.svg)](https://clojars.org/page-renderer)
+
+
 ## Features
 From the box:
 - Basic SEO meta
