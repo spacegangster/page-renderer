@@ -1,5 +1,4 @@
 (ns page-renderer.util)
-  
 
 (defn make-stylesheet-appender [stylesheet-path]
 [:script

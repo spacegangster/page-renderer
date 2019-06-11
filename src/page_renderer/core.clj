@@ -1,29 +1,39 @@
 (ns page-renderer.core
-  (:require [garden.core :refer [css]]
-            [clojure.java.io :as io]
-            [clojure.string :as s]
-            [hiccup.page :refer [html5]]
+  (:require [clojure.java.io :as io]
+            [garden.core :as garden]
+            [hiccup.core :as hiccup]
             [page-renderer.util :as u]))
 
 
-(defn or-text [& texts]
+(defn- or-text [& texts]
   (first (filter seq texts)))
 
-(defn update-if-present [m k f & args]
+(defn- update-if-present [m k f]
   (if (contains? m k)
-    (assoc m k (apply f (cons (get m k) args)))
+    (update m k f)
     m))
 
-(defn m [meta-name meta-value]
+(defn assoc-some
+  ; taken from weavejester/medley
+  "Associates a key with a value in a map, if and only if the value is not nil."
+  ([m k v]
+   (if (nil? v) m (assoc m k v)))
+  ([m k v & kvs]
+   (reduce (fn [m [k v]] (assoc-some m k v))
+           (assoc-some m k v)
+           (partition 2 kvs))))
+
+(defn- m [meta-name meta-value]
   (if meta-value
     (str "<meta name=\"" (name meta-name) "\" content=\"" meta-value"\">")))
 
-(defn mp [meta-name meta-value]
+(defn- mp [meta-name meta-value]
   (if meta-value
     (str "<meta property=\"" (name meta-name) "\" content=\"" meta-value"\">")))
 
 (defn- -get-filepath [asset-path]
   (str "resources/public" asset-path))
+
 
 (def ^:private default-mtime (System/currentTimeMillis))
 
@@ -42,6 +52,7 @@
     (try-get-mtime-for-a-file web-asset-path)))
 
 (defn cache-bust [web-asset-path]
+  (println "cb" web-asset-path)
   (let [is-relative-path? (not (re-find #"^\/" web-asset-path))]
     (str web-asset-path
          "?mtime="
@@ -76,19 +87,20 @@
                                       og-description meta-description meta-social-description description
                                       title og-title meta-title meta-social-title
                                       og-image meta-og-image] :as renderable}]
-  (assoc renderable
-         :favicon             (or-text (:favicon renderable) "/favicon.png")
-         :meta-description    (or-text meta-description meta-social-description og-description description)
-         ;
-         :twitter-title       (or-text twitter-title meta-social-title og-title)
-         :twitter-image       (or-text twitter-image og-image meta-og-image)
-         :twitter-description (or-text twitter-description meta-social-description meta-description description)
-         :twitter-card-type   (or-text twitter-card-type "summary")
-         ;
-         :og-title            (or-text og-title meta-social-title meta-title title)
-         :og-image            (or-text og-image meta-og-image)
-         :og-description      (or-text og-description meta-social-description meta-description description
-         :meta-description    (or-text meta-description meta-social-description og-description))))
+  (assoc-some
+    renderable
+    :favicon             (or-text (:favicon renderable) "/favicon.png")
+    :meta-description    (or-text meta-description meta-social-description og-description description)
+    ;
+    :twitter-title       (or-text twitter-title meta-social-title og-title)
+    :twitter-image       (or-text twitter-image og-image meta-og-image)
+    :twitter-description (or-text twitter-description meta-social-description meta-description description)
+    :twitter-card-type   (or-text twitter-card-type "summary")
+    ;
+    :og-title            (or-text og-title meta-social-title meta-title title)
+    :og-image            (or-text og-image meta-og-image)
+    :og-description      (or-text og-description meta-social-description meta-description description)
+    :meta-description    (or-text meta-description meta-social-description og-description)))
 
 (defn render-inline-sheets [filepath-or-vec]
   (if (string? filepath-or-vec)
@@ -135,6 +147,13 @@
       (update-if-present :favicon cache-bust)
       (update-if-present :og-image cache-bust)))
 
+(defn- auto-body [body opt-injection]
+  (if (keyword? (first body))
+    (if (.startsWith (name (first body)) "body")
+      (conj body opt-injection)
+      [:body body opt-injection])
+    body))
+
 
 (defn render-page
   "Render a page
@@ -172,8 +191,8 @@
    @param {string} renderable.head-tags - data structure to render into HTML of the document's head"
   [renderable]
   (let [renderable (-> renderable
-                       provide-default-props
-                       cache-bust-assets)
+                       cache-bust-assets
+                       provide-default-props)
         {:keys [body title head-tags
                 garden-css
                 stylesheet stylesheet-inline stylesheet-async
@@ -183,8 +202,7 @@
                 livereload-script?
                 ]} renderable
         title      (or meta-title title)
-        analytics? (get renderable :analytics? true)
-        inline-css (if garden-css (css garden-css))]
+        inline-css (if garden-css (garden/css garden-css))]
     (str
       "<!DOCTYPE html>"
       "<html " (render-attrs doc-attrs) ">"
@@ -214,11 +232,10 @@
          (render-stylesheets stylesheet)
          (if inline-css [:style#inline-css--garden inline-css])
          (render-inline-sheets stylesheet-inline)])
-      (hiccup/html
-        [:body body
-         (if stylesheet-async
-           (u/make-stylesheet-appender stylesheet-async))])
-      "</html")))
+      (hiccup/html (auto-body body
+                              (if stylesheet-async
+                                (u/make-stylesheet-appender stylesheet-async))))
+      "</html>")))
 
 (defn respond-page
   "Renders a page and returns basic Ring response map"
