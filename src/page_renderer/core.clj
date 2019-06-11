@@ -52,7 +52,6 @@
     (try-get-mtime-for-a-file web-asset-path)))
 
 (defn cache-bust [web-asset-path]
-  (println "cb" web-asset-path)
   (let [is-relative-path? (not (re-find #"^\/" web-asset-path))]
     (str web-asset-path
          "?mtime="
