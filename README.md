@@ -6,7 +6,7 @@
 
 
 ## Features
-From the box:
+Out of the box:
 - Basic SEO meta
 - Basic Twitter meta
 - Basic Open Graph (Facebook) meta
@@ -85,8 +85,10 @@ From the box:
 ```
 
 ## API
-Use `page-renderer.core/render-page` and `page-renderer.core/respond-page`
-For both functions same signature.
+Use `page-renderer.core/render-page` and `page-renderer.core/respond-page`.
+
+Same signature for both functions:
+
 ```
 Render a page
 @param {hash-map} renderable
