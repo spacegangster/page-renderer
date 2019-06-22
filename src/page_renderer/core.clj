@@ -62,15 +62,15 @@
 
 (defn twitter-meta [{:keys [twitter-site twitter-card-type twitter-title twitter-creator
                             twitter-description twitter-image twitter-image-alt] :as renderable}]
-  (when twitter-site
-  (list
-    (m "twitter:card"        twitter-card-type)
-    (m "twitter:creator"     twitter-creator)
-    (m "twitter:site"        twitter-site)
-    (m "twitter:title"       twitter-title)
-    (m "twitter:description" twitter-description)
-    (m "twitter:image"       twitter-image)
-    (m "twitter:image:alt"   twitter-image-alt))))
+  (when (or twitter-site twitter-creator)
+    (list
+      (m "twitter:card"        twitter-card-type)
+      (m "twitter:creator"     twitter-creator)
+      (m "twitter:site"        twitter-site)
+      (m "twitter:title"       twitter-title)
+      (m "twitter:description" twitter-description)
+      (m "twitter:image"       twitter-image)
+      (m "twitter:image:alt"   twitter-image-alt))))
 
 
 (defn og-meta [{:keys [og-image og-title og-description og-url og-type] :as renderable}]
@@ -88,8 +88,10 @@
                                       og-image meta-og-image] :as renderable}]
   (assoc-some
     renderable
+    :title               (or-text title meta-title)
     :favicon             (or-text (:favicon renderable) "/favicon.png")
     :meta-description    (or-text meta-description meta-social-description og-description description)
+    :meta-title          (or-text meta-title title)
     ;
     :twitter-title       (or-text twitter-title meta-social-title og-title)
     :twitter-image       (or-text twitter-image og-image meta-og-image)
@@ -98,8 +100,7 @@
     ;
     :og-title            (or-text og-title meta-social-title meta-title title)
     :og-image            (or-text og-image meta-og-image)
-    :og-description      (or-text og-description meta-social-description meta-description description)
-    :meta-description    (or-text meta-description meta-social-description og-description)))
+    :og-description      (or-text og-description meta-social-description meta-description description)))
 
 (defn render-inline-sheets [filepath-or-vec]
   (if (string? filepath-or-vec)
@@ -162,15 +163,14 @@
    @param {string} renderable.title - content for title tag
    @param {string} renderable.meta-keywords - content for title tag
    @param {string} renderable.meta-description - meta description
+   @param {map}    renderable.meta-props – meta which must be rendered as props
+    {'fb:app_id' 123}
 
    @param {string} renderable.og-title - OpenGraph title
    @param {string} renderable.og-description - OpenGraph description
    @param {string} renderable.og-image - absolute url to image for OpenGraph
    @param {string} renderable.og-type
    @param {string} renderable.og-url - OpenGraph page permalink
-
-   @param {map} meta-props – meta which must be rendered as props
-    {'fb:app_id' 123}
 
    @param {string}  renderable.twitter-site - twitter @username. Required for all Twitter meta to render
    @param {string}  renderable.twitter-creator - twitter @username.
@@ -201,7 +201,7 @@
                 meta-title meta-description meta-keywords
                 livereload-script?
                 ]} renderable
-        title      (or meta-title title)
+        title (or meta-title title)
         inline-css (if garden-css (garden/css garden-css))]
     (str
       "<!DOCTYPE html>"
