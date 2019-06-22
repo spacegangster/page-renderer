@@ -85,45 +85,57 @@ Out of the box:
 ```
 
 ## API
-Use `page-renderer.core/render-page` and `page-renderer.core/respond-page`.
+Use `page-renderer.core/render-page` and `page-renderer.core/respond-page`
+Both functions have the same signature.
 
-Same signature for both functions:
+Each function accepts a map that may have properties enlisted below:
 
-```
-Render a page
-@param {hash-map} renderable
-@param {vector} renderable.body - data structure for Hiccup to render into HTML of the document's body
-@param {string} renderable.meta-title - content for title tag (preferred)
-@param {string} renderable.title - content for title tag
-@param {string} renderable.meta-keywords - content for title tag
-@param {string} renderable.meta-description - meta description
+- `@param {hash-map} renderable` - the props map 
+- `@param {vector} renderable.body` - data structure for Hiccup to render into HTML of the document's body
+- `@param {string} renderable.meta-title` - content for title tag (preferred)
+- `@param {string} renderable.title` - content for title tag
+- `@param {string} renderable.meta-keywords` - content for title tag
+- `@param {string} renderable.meta-description` - meta description
+- `@param {map} meta-props` – meta which must be rendered as props.
+    Example `{"fb:app_id" 123}`.
+    For instance, Facebook `app_id` must be renderded as meta property not just meta tag.
+    
 
-@param {string} renderable.og-title - OpenGraph title
-@param {string} renderable.og-description - OpenGraph description
-@param {string} renderable.og-image - absolute url to image for OpenGraph
-@param {string} renderable.og-type
-@param {string} renderable.og-url - OpenGraph page permalink
+##### Open Graph meta
+- `@param {string} renderable.og-title` - OpenGraph title
+- `@param {string} renderable.og-description` - OpenGraph description
+- `@param {string} renderable.og-image` - absolute url to image for OpenGraph
+- `@param {string} renderable.og-type`
+- `@param {string} renderable.og-url` - OpenGraph page permalink
+- `@param {string} renderable.head-tags` - data structure to render into HTML of the document's head
 
-@param {map} meta-props – meta which must be rendered as props
-{'fb:app_id' 123}
+##### Twitter meta
+Twitter meta – if you want it – be sure to include `:twitter-site` or `:twitter-creator`. Or both.
 
-@param {string}  renderable.twitter-site - twitter @username
-@param {keyword} renderable.twitter-card-type - twitter card type
-[:summary (default), :summary_large_image, :app, :player]
-@param {string}  renderable.twitter-description - twitter card description
-@param {string}  renderable.twitter-image - twitter image
-@param {string}  renderable.twitter-image-alt - twitter image alt
+- `@param {string}  renderable.twitter-site` - twitter @username
+- `@param {keyword} renderable.twitter-card-type` - twitter card type
+    one of `#{:summary  :summary_large_image :app :player}`
+- `@param {string}  renderable.twitter-description` - twitter card description
+- `@param {string}  renderable.twitter-image` - twitter image
+- `@param {string}  renderable.twitter-image-alt` - twitter image alt
 
-@param {string} renderable.garden-css - data structure for Garden CSS
-@param {string} renderable.stylesheet - stylesheet filename, will be plugged into the head, will cause
+##### Assets
+- `@param {string} renderable.garden-css` - data structure for Garden CSS
+- `@param {string} renderable.stylesheet` - stylesheet filename, will be plugged into the head, will cause
 browser waiting for download.
-@param {string/collection<string>} renderable.stylesheet-inline - stylesheet filename, will be inlined into the head.
-@param {string} renderable.script - script name
-@param {string} renderable.stylesheet-async - stylesheet filename, will be loaded asynchronously by script.
-@param {string} renderable.script - script name, will be loaded asynchronously
-@param {string} renderable.script-sync - script name, will be loaded synchronously
-@param {string} renderable.head-tags - data structure to render into HTML of the document's head
-```
+- `@param {string/collection<string>} renderable.stylesheet-inline` - stylesheet filename, will be inlined into the head.
+- `@param {string} renderable.stylesheet-async` - stylesheet filename, will be loaded asynchronously by script.
+- `@param {string} renderable.script` - script name, will be loaded asynchronously
+- `@param {string} renderable.script-sync` - script name, will be loaded synchronously
+- `@param {string} renderable.js-module` - entry point for JS modular app. If you prefer your scripts to be served as modules
+
+## How cache-busting works here
+`page-renderer` provides very basic, but bulletproof cache-busting by providing
+a url param with last modification timestamp, like `/file?mtime=21112`.
+For every stylesheet, script and image – it will attempt to look up for the
+last modified date on the file. If the file can't be found on the classpath
+or inside a local `resources/public` directory it will receive the library load time,
+roughly equaling the application start time.
 
 ## License
 

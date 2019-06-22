@@ -172,21 +172,22 @@
    @param {map} meta-props – meta which must be rendered as props
     {'fb:app_id' 123}
 
-   @param {string}  renderable.twitter-site - twitter @username
+   @param {string}  renderable.twitter-site - twitter @username. Required for all Twitter meta to render
+   @param {string}  renderable.twitter-creator - twitter @username.
    @param {keyword} renderable.twitter-card-type - twitter card type
-    [:summary (default), :summary_large_image, :app, :player]
+    one of #{:summary  :summary_large_image :app :player}
    @param {string}  renderable.twitter-description - twitter card description
-   @param {string}  renderable.twitter-image - twitter image
+   @param {string}  renderable.twitter-image - twitter image link. Twitter images are useu
    @param {string}  renderable.twitter-image-alt - twitter image alt
 
    @param {string} renderable.garden-css - data structure for Garden CSS
    @param {string} renderable.stylesheet - stylesheet filename, will be plugged into the head, will cause
     browser waiting for download.
    @param {string/collection<string>} renderable.stylesheet-inline - stylesheet filename, will be inlined into the head.
-   @param {string} renderable.script - script name
    @param {string} renderable.stylesheet-async - stylesheet filename, will be loaded asynchronously by script.
    @param {string} renderable.script - script name, will be loaded asynchronously
    @param {string} renderable.script-sync - script name, will be loaded synchronously
+   @param {string} renderable.js-module - entry point for JS modules. If you prefer your scripts to be served as modules
    @param {string} renderable.head-tags - data structure to render into HTML of the document's head"
   [renderable]
   (let [renderable (-> renderable
