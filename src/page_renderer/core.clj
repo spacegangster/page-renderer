@@ -35,9 +35,10 @@
   (str "resources/public" asset-path))
 
 
+
 (def ^:private default-mtime (System/currentTimeMillis))
 
-(defn try-get-mtime-for-a-file [web-asset-path]
+(defn- try-get-mtime-for-a-file [web-asset-path]
   (let [file (io/file (str "resources/public" web-asset-path))]
     (if (.exists file)
       (.lastModified file)
@@ -60,6 +61,7 @@
            (mtime-or-default web-asset-path)))))
 
 
+
 (defn twitter-meta [{:keys [twitter-site twitter-card-type twitter-title twitter-creator
                             twitter-description twitter-image twitter-image-alt] :as renderable}]
   (when (or twitter-site twitter-creator)
@@ -72,7 +74,6 @@
       (m "twitter:image"       twitter-image)
       (m "twitter:image:alt"   twitter-image-alt))))
 
-
 (defn og-meta [{:keys [og-image og-title og-description og-url og-type] :as renderable}]
   (list
     (mp "og:title"       og-title)
@@ -80,6 +81,7 @@
     (mp "og:type"        og-type)
     (mp "og:description" og-description)
     (mp "og:image"       og-image)))
+
 
 
 (defn- provide-default-props [{:keys [twitter-description twitter-title twitter-image twitter-card-type
