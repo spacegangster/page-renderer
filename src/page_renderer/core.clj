@@ -138,10 +138,12 @@
   (map -render-mp-entry meta-props))
 
 
-(defn attr-append [s [k v]] (str s " " (name k) "=" (name v)))
+(defn attr-append [s [k v]]
+  (str s " " (name k) "=" (pr-str (name v))))
 
 (defn render-attrs [attrs]
   (reduce attr-append "" attrs))
+
 
 (defn cache-bust-assets [page-data]
   (-> page-data
@@ -161,8 +163,10 @@
   "Render a page
    @param {hash-map} renderable
    @param {vector} renderable.body - data structure for Hiccup to render into HTML of the document's body
-   @param {string} renderable.meta-title - content for title tag (preferred)
    @param {string} renderable.title - content for title tag
+   @param {string} renderable.lang - when provided will render a meta tag and a document attribute
+    for page language.
+   @param {string} renderable.meta-title - content for title tag (preferred)
    @param {string} renderable.meta-keywords - content for title tag
    @param {string} renderable.meta-description - meta description
    @param {map}    renderable.meta-props – meta which must be rendered as props
@@ -203,10 +207,12 @@
                 stylesheet stylesheet-inline stylesheet-async
                 script script-sync
                 doc-attrs js-module favicon
+                lang
                 manifest
                 meta-title meta-description meta-keywords
                 livereload-script?]} renderable
-        title (or meta-title title)
+        doc-attrs  (assoc-some doc-attrs :lang lang)
+        title      (or meta-title title)
         inline-css (if garden-css (garden/css garden-css))]
     (str
       "<!DOCTYPE html>"
@@ -215,12 +221,18 @@
         [:head
 
          [:meta {:charset "utf-8"}]
-         [:link {:rel "icon", :type "image/png", :href favicon}]
          (m "viewport", "width=device-width, initial-scale=1, maximum-scale=1")
+         [:link {:rel "icon", :type "image/png", :href favicon}]
+
+         (if lang
+           [:meta {:http-equiv "Content-Language" :content lang}])
+
          (if manifest
            [:link {:rel "manifest" :href (if (string? manifest) manifest "/manifest.json")}])
+
          (if livereload-script?
            [:script {:src "//localhost:35729/livereload.js?snipver=2" :async true}])
+
          (seq head-tags)
          ;
          (render-scripts--async script)
