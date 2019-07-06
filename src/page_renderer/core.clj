@@ -52,7 +52,7 @@
         default-mtime))
     (try-get-mtime-for-a-file web-asset-path)))
 
-(defn cache-bust [web-asset-path]
+(defn cache-bust-one [web-asset-path]
   (let [is-relative-path? (not (re-find #"^\/" web-asset-path))]
     (str web-asset-path
          "?mtime="
@@ -60,6 +60,10 @@
            default-mtime
            (mtime-or-default web-asset-path)))))
 
+(defn cache-bust [web-asset-path-or-coll]
+  (if (coll? web-asset-path-or-coll)
+    (map cache-bust-one web-asset-path-or-coll)
+    (cache-bust-one web-asset-path-or-coll)))
 
 
 (defn twitter-meta [{:keys [twitter-site twitter-card-type twitter-title twitter-creator
@@ -115,7 +119,7 @@
     (if (string? script-sync)
       (recur [script-sync] async?)
       (for [script script-sync]
-        [:script {:src (cache-bust script) :async async?}]))))
+        [:script {:src script :async async?}]))))
 
 (defn render-scripts--sync [script-name]
   (render-scripts script-name false))
@@ -123,12 +127,19 @@
 (defn render-scripts--async [script-name]
   (render-scripts script-name true))
 
+(defn render-js-modules [src]
+  (if src
+    (if (coll? src)
+      (for [s src]
+        [:script {:type "module" :src s, :async true}])
+      src)))
+
 (defn render-stylesheets [stylesheets]
   (if stylesheets
     (if (string? stylesheets)
       (recur [stylesheets])
       (for [stylesheet stylesheets]
-        [:link {:rel "stylesheet" :type "text/css" :href (cache-bust stylesheet)}]))))
+        [:link {:rel "stylesheet" :type "text/css" :href stylesheet}]))))
 
 
 (defn- -render-mp-entry [[mp-key mp-value]]
@@ -147,9 +158,16 @@
 
 (defn cache-bust-assets [page-data]
   (-> page-data
-      (update-if-present :twitter-image cache-bust)
-      (update-if-present :favicon cache-bust)
-      (update-if-present :og-image cache-bust)))
+      (update-if-present :twitter-image cache-bust-one)
+      (update-if-present :favicon cache-bust-one)
+      (update-if-present :stylesheet cache-bust)
+      (update-if-present :script cache-bust)
+      (update-if-present :script-sync cache-bust)
+      (update-if-present :stylesheet cache-bust)
+      (update-if-present :stylesheet-async cache-bust)
+      (update-if-present :js-module cache-bust)
+      (update-if-present :manifest cache-bust-one)
+      (update-if-present :og-image cache-bust-one)))
 
 (defn- auto-body [body opt-injection]
   (if (keyword? (first body))
@@ -157,6 +175,13 @@
       (conj body opt-injection)
       [:body body opt-injection])
     body))
+
+(defn- async-sheets [stylesheet-async]
+  (cond
+    (nil? stylesheet-async)     nil
+    (string? stylesheet-async) (u/make-stylesheet-appender stylesheet-async)
+    (coll? stylesheet-async)   (map u/make-stylesheet-appender stylesheet-async)
+    :else (throw (Exception. "not a collection or a string"))))
 
 
 (defn render-page
@@ -200,6 +225,7 @@
    @param {string} renderable.head-tags - data structure to render into HTML of the document's head"
   [renderable]
   (let [renderable (-> renderable
+                       (update-if-present :manifest #(if (string? %) % "/manifest.json"))
                        cache-bust-assets
                        provide-default-props)
         {:keys [body title head-tags
@@ -237,7 +263,7 @@
          ;
          (render-scripts--async script)
          (render-scripts--sync script-sync)
-         (if js-module [:script {:type "module" :src (cache-bust js-module), :async true}])
+         (render-js-modules js-module)
          ;
          [:title title]
          (m :description meta-description)
@@ -251,9 +277,7 @@
          (render-stylesheets stylesheet)
          (if inline-css [:style#inline-css--garden inline-css])
          (render-inline-sheets stylesheet-inline)])
-      (hiccup/html (auto-body body
-                              (if stylesheet-async
-                                (u/make-stylesheet-appender stylesheet-async))))
+      (hiccup/html (auto-body body (async-sheets stylesheet-async)))
       "</html>")))
 
 (defn respond-page
