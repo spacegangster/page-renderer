@@ -155,6 +155,14 @@
 (defn render-attrs [attrs]
   (reduce attr-append "" attrs))
 
+(defn on-dom-interactive-fragment [js-snippet]
+"const __pageRendererInitId = setInterval(function(){
+    if (('complete' === document.readyState) || ('interactive' === document.readyState)) {
+        clearInterval(__pageRendererInitId)
+				"js-snippet"
+    }
+}, 5)")
+
 
 (defn cache-bust-assets [page-data]
   (-> page-data
@@ -222,6 +230,7 @@
    @param {string} renderable.script - script name, will be loaded asynchronously
    @param {string} renderable.script-sync - script name, will be loaded synchronously
    @param {string} renderable.js-module - entry point for JS modules. If you prefer your scripts to be served as modules
+   @param {string} renderable.on-dom-interactive-js - a js snippet to run once DOM is interactive or ready.
    @param {string} renderable.head-tags - data structure to render into HTML of the document's head"
   [renderable]
   (let [renderable (-> renderable
@@ -231,7 +240,7 @@
         {:keys [body title head-tags
                 garden-css
                 stylesheet stylesheet-inline stylesheet-async
-                script script-sync
+                script script-sync on-dom-interactive-js
                 doc-attrs js-module favicon
                 lang
                 manifest
@@ -258,6 +267,9 @@
 
          (if livereload-script?
            [:script {:src "//localhost:35729/livereload.js?snipver=2" :async true}])
+
+         (if (seq on-dom-interactive-js)
+           (on-dom-interactive-fragment on-dom-interactive-js))
 
          (seq head-tags)
          ;

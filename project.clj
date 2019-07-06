@@ -1,4 +1,4 @@
-(defproject page-renderer "0.2.2"
+(defproject page-renderer "0.3.0"
   :description "A bootstrapped page renderer for pure Clojure pages (uses Hiccup and Garden)"
   :url "https://github.com/spacegangster/page-renderer"
   :license {:name "Eclipse Public License"
