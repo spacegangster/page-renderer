@@ -182,6 +182,9 @@
    @param {string}  renderable.twitter-image - twitter image link. Twitter images are useu
    @param {string}  renderable.twitter-image-alt - twitter image alt
 
+   @param {string/boolean} renderable.manifest - truthy value will add a manifest link.
+    If a string is passed – it'll be treated as a manifest url. Otherwise '/manifest.json'
+    will be specified.
    @param {string} renderable.garden-css - data structure for Garden CSS
    @param {string} renderable.stylesheet - stylesheet filename, will be plugged into the head, will cause
     browser waiting for download.
@@ -200,9 +203,9 @@
                 stylesheet stylesheet-inline stylesheet-async
                 script script-sync
                 doc-attrs js-module favicon
+                manifest
                 meta-title meta-description meta-keywords
-                livereload-script?
-                ]} renderable
+                livereload-script?]} renderable
         title (or meta-title title)
         inline-css (if garden-css (garden/css garden-css))]
     (str
@@ -214,6 +217,8 @@
          [:meta {:charset "utf-8"}]
          [:link {:rel "icon", :type "image/png", :href favicon}]
          (m "viewport", "width=device-width, initial-scale=1, maximum-scale=1")
+         (if manifest
+           [:link {:rel "manifest" :href (if (string? manifest) manifest "/manifest.json")}])
          (if livereload-script?
            [:script {:src "//localhost:35729/livereload.js?snipver=2" :async true}])
          (seq head-tags)

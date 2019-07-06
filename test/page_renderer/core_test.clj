@@ -7,7 +7,7 @@
   {:title "title"
    :body [:body.quito]})
 
-(def ds2
+(def page-2
   {:title "Page"
    :og-image "https://birds.org/great-tit.png"
    :description "Some bird stuff"
@@ -41,5 +41,15 @@ document.head.appendChild(link);
 (deftest sanity-2
   (testing "Sanity test #2"
     (is (= (s/replace ethalon-page-2 #"mtime=\d+" "mtime=stub")
-           (s/replace (pr/render-page ds2)  #"mtime=\d+" "mtime=stub")))))
+           (s/replace (pr/render-page page-2)  #"mtime=\d+" "mtime=stub")))))
 
+(deftest manifest-presence
+  (testing "Manifest test"
+    (let [res (pr/render-page (assoc page-2 :manifest true))]
+      (println res)
+      (is (or
+            (re-find #"<link href=\"/manifest.json\" rel=\"manifest\".?.?>" res)
+            (re-find #"<link rel=\"manifest\" href=\"/manifest.json\".?.?>" res))))))
+
+
+(run-tests 'page-renderer.core-test)
