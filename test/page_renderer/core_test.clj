@@ -47,6 +47,7 @@
     (let [res (pr/render-page (assoc page-2 :lang :en))]
       (is (and
             (re-find #"<html.*lang=\"en\".*?>" res)
+            (re-find #"<meta.*http-equiv=\"Content-Language\".*?/>" res)
             )))))
 
 
