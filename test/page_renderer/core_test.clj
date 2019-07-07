@@ -22,6 +22,11 @@
    :stylesheet-async ["large-stuff.css" "large-stuff2.css"]
    :body [:body.page [:h1 "Ah, a Page!"]]})
 
+(def page-4
+  {:title "Page"
+   :stylesheet ["large-stuff.css" "large-stuff2.css"]
+   :body [:div.page "a page"]})
+
 (defn- slash-mtime [page-str]
   (s/replace page-str #"mtime=\d+" "mtime=stub"))
 
@@ -34,6 +39,9 @@
 
 (def ethalon-page-3
   "<!DOCTYPE html><html ><head><meta charset=\"utf-8\" /><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=1\"><link href=\"/favicon.png\" rel=\"icon\" type=\"image/png\" /><title>Page</title><meta property=\"og:title\" content=\"Page\"></head><body class=\"page\"><h1>Ah, a Page!</h1><script>(function(){\nvar link = document.createElement('link');\nlink.rel='stylesheet';\nlink.href='large-stuff.css?mtime=stub';\nlink.type='text/css';\ndocument.head.appendChild(link);\n})()</script><script>(function(){\nvar link = document.createElement('link');\nlink.rel='stylesheet';\nlink.href='large-stuff2.css?mtime=stub';\nlink.type='text/css';\ndocument.head.appendChild(link);\n})()</script></body></html>")
+
+(def ethalon-page-4
+  "<!DOCTYPE html><html ><head><meta charset=\"utf-8\" /><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=1\"><link href=\"/favicon.png\" rel=\"icon\" type=\"image/png\" /><title>Page</title><meta property=\"og:title\" content=\"Page\"><link href=\"large-stuff.css?mtime=stub\" rel=\"stylesheet\" type=\"text/css\" /><link href=\"large-stuff2.css?mtime=stub\" rel=\"stylesheet\" type=\"text/css\" /></head><body><div class=\"page\">a page</div></body></html>")
 
 
 (deftest sanity
@@ -51,6 +59,11 @@
     (is (= ethalon-page-3
            (slash-mtime (pr/render-page page-3))))))
 
+(deftest stylesheet-cachebusting
+  (testing "stylesheet cachebusting"
+    (is (= ethalon-page-4
+           (slash-mtime (pr/render-page page-4))))))
+
 (deftest manifest-presence
   (testing "Manifest test"
     (let [res (slash-mtime (pr/render-page (assoc page-1 :manifest true)))]
@@ -67,4 +80,4 @@
             )))))
 
 
-(run-tests 'page-renderer.core-test)
+;(run-tests 'page-renderer.core-test)

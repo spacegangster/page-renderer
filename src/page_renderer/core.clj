@@ -168,7 +168,6 @@
   (-> page-data
       (update-if-present :twitter-image cache-bust-one)
       (update-if-present :favicon cache-bust-one)
-      (update-if-present :stylesheet cache-bust)
       (update-if-present :script cache-bust)
       (update-if-present :script-sync cache-bust)
       (update-if-present :stylesheet cache-bust)
