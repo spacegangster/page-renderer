@@ -167,14 +167,17 @@
 (defn cache-bust-assets [page-data]
   (-> page-data
       (update-if-present :twitter-image cache-bust-one)
+      (update-if-present :og-image cache-bust-one)
       (update-if-present :favicon cache-bust-one)
+      ;
       (update-if-present :script cache-bust)
       (update-if-present :script-sync cache-bust)
+      (update-if-present :js-module cache-bust)
+      ;
       (update-if-present :stylesheet cache-bust)
       (update-if-present :stylesheet-async cache-bust)
-      (update-if-present :js-module cache-bust)
-      (update-if-present :manifest cache-bust-one)
-      (update-if-present :og-image cache-bust-one)))
+      ;
+      (update-if-present :manifest cache-bust-one)))
 
 (defn- auto-body [body opt-injection]
   (if (keyword? (first body))
