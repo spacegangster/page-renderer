@@ -15,6 +15,7 @@ Out of the box:
 - Clojure markup rendered with `hiccup`
 - Built-in cache-busting for assets
 - Async stylesheets loading
+- And also: that responsive `viewport=something` meta tag and language tag
 
 ## Usage
 
@@ -122,13 +123,16 @@ Twitter meta – if you want it – be sure to include `:twitter-site` or `:twit
 
 ##### Assets
 - `@param {string} renderable.garden-css` - data structure for Garden CSS
-- `@param {string} renderable.stylesheet` - stylesheet filename, will be plugged into the head, will cause
+- `@param {string/boolean} renderable.manifest` - truthy value will add a manifest link.
+    If a string is passed – it'll be treated as a manifest url.
+    Otherwise '/manifest.json' will be specified.
+- `@param {string/collection<string>} renderable.stylesheet` - stylesheet filename, will be plugged into the head, will cause
 browser waiting for download.
 - `@param {string/collection<string>} renderable.stylesheet-inline` - stylesheet filename, will be inlined into the head.
-- `@param {string} renderable.stylesheet-async` - stylesheet filename, will be loaded asynchronously by script.
-- `@param {string} renderable.script` - script name, will be loaded asynchronously
-- `@param {string} renderable.script-sync` - script name, will be loaded synchronously
-- `@param {string} renderable.js-module` - entry point for JS modular app. If you prefer your scripts to be served as modules
+- `@param {string/collection<string>} renderable.stylesheet-async` - stylesheet filename, will be loaded asynchronously by script.
+- `@param {string/collection<string>} renderable.script` - script name, will be loaded asynchronously
+- `@param {string/collection<string>} renderable.script-sync` - script name, will be loaded synchronously
+- `@param {string/collection<string>} renderable.js-module` - entry point for JS modular app. If you prefer your scripts to be served as modules
 
 ## How cache-busting works here
 `page-renderer` provides very basic, but bulletproof cache-busting by providing
