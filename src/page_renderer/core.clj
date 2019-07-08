@@ -95,7 +95,6 @@
   (assoc-some
     renderable
     :title               (or-text title meta-title)
-    :favicon             (or-text (:favicon renderable) "/favicon.png")
     :meta-description    (or-text meta-description meta-social-description og-description description)
     :meta-title          (or-text meta-title title)
     ;
@@ -237,6 +236,7 @@
   [renderable]
   (let [renderable (-> renderable
                        (update-if-present :manifest #(if (string? %) % "/manifest.json"))
+                       (assoc :favicon (or-text (:favicon renderable) "/favicon.png"))
                        cache-bust-assets
                        provide-default-props)
         {:keys [body title head-tags
