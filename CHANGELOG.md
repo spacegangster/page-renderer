@@ -1,7 +1,7 @@
 # Change Log
 
 
-## [0.3.1] - 2019-06-22
+## [0.3.1] - 2019-07-06
 
 ### Added to `page-renderer.core/render-page`
 - on-dom-interactive-js JS snippet. If you need to do something in JS
