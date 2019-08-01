@@ -1,27 +1,10 @@
 (ns page-renderer.core
-  (:require [clojure.java.io :as io]
-            [garden.core :as garden]
+  (:require [garden.core :as garden]
             [hiccup.core :as hiccup]
+            [page-renderer.service-worker-lifecycle :as swl]
+            [page-renderer.cachebusting :as cb]
             [page-renderer.util :as u]))
 
-
-(defn- or-text [& texts]
-  (first (filter seq texts)))
-
-(defn- update-if-present [m k f]
-  (if (contains? m k)
-    (update m k f)
-    m))
-
-(defn assoc-some
-  ; taken from weavejester/medley
-  "Associates a key with a value in a map, if and only if the value is not nil."
-  ([m k v]
-   (if (nil? v) m (assoc m k v)))
-  ([m k v & kvs]
-   (reduce (fn [m [k v]] (assoc-some m k v))
-           (assoc-some m k v)
-           (partition 2 kvs))))
 
 (defn- m [meta-name meta-value]
   (if meta-value
@@ -35,39 +18,8 @@
   (str "resources/public" asset-path))
 
 
-
-(def ^:private default-mtime (System/currentTimeMillis))
-
-(defn- try-get-mtime-for-a-file [web-asset-path]
-  (let [file (io/file (str "resources/public" web-asset-path))]
-    (if (.exists file)
-      (.lastModified file)
-      default-mtime)))
-
-(defn- mtime-or-default [web-asset-path]
-  (if-let [resource (io/resource (str "public" web-asset-path))]
-    (try
-      (.. resource openConnection getLastModified)
-      (catch Exception e
-        default-mtime))
-    (try-get-mtime-for-a-file web-asset-path)))
-
-(defn cache-bust-one [web-asset-path]
-  (let [is-relative-path? (not (re-find #"^\/" web-asset-path))]
-    (str web-asset-path
-         "?mtime="
-         (if is-relative-path?
-           default-mtime
-           (mtime-or-default web-asset-path)))))
-
-(defn cache-bust [web-asset-path-or-coll]
-  (if (coll? web-asset-path-or-coll)
-    (map cache-bust-one web-asset-path-or-coll)
-    (cache-bust-one web-asset-path-or-coll)))
-
-
-(defn twitter-meta [{:keys [twitter-site twitter-card-type twitter-title twitter-creator
-                            twitter-description twitter-image twitter-image-alt] :as renderable}]
+(defn- twitter-meta [{:keys [twitter-site twitter-card-type twitter-title twitter-creator
+                             twitter-description twitter-image twitter-image-alt] :as renderable}]
   (when (or twitter-site twitter-creator)
     (list
       (m "twitter:card"        twitter-card-type)
@@ -78,7 +30,7 @@
       (m "twitter:image"       twitter-image)
       (m "twitter:image:alt"   twitter-image-alt))))
 
-(defn og-meta [{:keys [og-image og-title og-description og-url og-type] :as renderable}]
+(defn- og-meta [{:keys [og-image og-title og-description og-url og-type] :as renderable}]
   (list
     (mp "og:title"       og-title)
     (mp "og:url"         og-url)
@@ -91,21 +43,27 @@
 (defn- provide-default-props [{:keys [twitter-description twitter-title twitter-image twitter-card-type
                                       og-description meta-description meta-social-description description
                                       title og-title meta-title meta-social-title
-                                      og-image meta-og-image] :as renderable}]
-  (assoc-some
+                                      og-image meta-og-image theme-color
+                                      favicon link-image-src link-apple-icon link-apple-startup-image]
+                               :as renderable}]
+  (u/assoc-some
     renderable
-    :title               (or-text title meta-title)
-    :meta-description    (or-text meta-description meta-social-description og-description description)
-    :meta-title          (or-text meta-title title)
+    :title               (u/or-text title meta-title)
+    :meta-description    (u/or-text meta-description meta-social-description og-description description)
+    :meta-title          (u/or-text meta-title title)
+    :theme-color         (u/or-text theme-color "white")
+    :link-image-src      (u/or-text link-image-src favicon link-apple-icon)
+    :link-apple-icon     (u/or-text link-apple-icon favicon link-image-src)
+    :link-apple-startup-image (u/or-text link-apple-startup-image link-image-src favicon)
     ;
-    :twitter-title       (or-text twitter-title meta-social-title og-title)
-    :twitter-image       (or-text twitter-image og-image meta-og-image)
-    :twitter-description (or-text twitter-description meta-social-description meta-description description)
-    :twitter-card-type   (or-text twitter-card-type "summary")
+    :twitter-title       (u/or-text twitter-title meta-social-title og-title)
+    :twitter-image       (u/or-text twitter-image og-image meta-og-image)
+    :twitter-description (u/or-text twitter-description meta-social-description meta-description description)
+    :twitter-card-type   (u/or-text twitter-card-type "summary")
     ;
-    :og-title            (or-text og-title meta-social-title meta-title title)
-    :og-image            (or-text og-image meta-og-image)
-    :og-description      (or-text og-description meta-social-description meta-description description)))
+    :og-title            (u/or-text og-title meta-social-title meta-title title)
+    :og-image            (u/or-text og-image meta-og-image)
+    :og-description      (u/or-text og-description meta-social-description meta-description description)))
 
 (defn render-inline-sheets [filepath-or-vec]
   (if (string? filepath-or-vec)
@@ -163,21 +121,6 @@
 }, 5)")
 
 
-(defn cache-bust-assets [page-data]
-  (-> page-data
-      (update-if-present :twitter-image cache-bust-one)
-      (update-if-present :og-image cache-bust-one)
-      (update-if-present :favicon cache-bust-one)
-      ;
-      (update-if-present :script cache-bust)
-      (update-if-present :script-sync cache-bust)
-      (update-if-present :js-module cache-bust)
-      ;
-      (update-if-present :stylesheet cache-bust)
-      (update-if-present :stylesheet-async cache-bust)
-      ;
-      (update-if-present :manifest cache-bust-one)))
-
 (defn- auto-body [body opt-injection]
   (if (keyword? (first body))
     (if (.startsWith (name (first body)) "body")
@@ -188,16 +131,48 @@
 (defn- async-sheets [stylesheet-async]
   (cond
     (nil? stylesheet-async)     nil
-    (string? stylesheet-async) (u/make-stylesheet-appender stylesheet-async)
-    (coll? stylesheet-async)   (map u/make-stylesheet-appender stylesheet-async)
+    (string? stylesheet-async) (u/make-stylesheet-appender-raw stylesheet-async)
+    (coll? stylesheet-async)   (flatten (map u/make-stylesheet-appender stylesheet-async))
     :else (throw (Exception. "not a collection or a string"))))
+
+(defn- link-image [rel src]
+  (if src
+    (let [img-type (some->> src (re-find #"\.(jpg|jpeg|png)") second (str "image/"))]
+      [:link {:rel (name rel) :type (or img-type "image/png"), :href src}])))
 
 
 (defn render-page
-  "Render a page
+  "Renders a page with a modern meta set.
+
+   Main parameters
    @param {hash-map} renderable
    @param {vector} renderable.body - data structure for Hiccup to render into HTML of the document's body
    @param {string} renderable.title - content for title tag
+   @param {string} renderable.favicon - favicon's url
+   @param {string} renderable.script - script name, will be loaded asynchronously
+   @param {string} renderable.stylesheet - stylesheet filename, will be plugged into the head, will cause
+    browser waiting for download.
+
+   Assets
+   @param {string} renderable.stylesheet-async - stylesheet filename, will be loaded asynchronously by script.
+   @param {string} renderable.garden-css - data structure for Garden CSS
+   @param {string/collection<string>} renderable.stylesheet-inline - stylesheet filename, will be inlined into the head.
+   @param {string} renderable.script-sync - script name, will be loaded synchronously
+   @param {string} renderable.js-module - entry point for JS modules. If you prefer your scripts to be served as modules
+   @param {boolean} renderable.skip-cachebusting? will skip automatic cachebusting if true. Defaults to false.
+   @param {string} renderable.on-dom-interactive-js - a js snippet to run once DOM is interactive or ready.
+
+   PWA related
+   @param {string} renderable.link-image-src - url to image-src
+   @param {string} renderable.link-apple-icon - url to image used for apple-touch-icon link
+   @param {string} renderable.link-apple-startup-image - url to image used for apple-touch-startup-image link
+   @param {string} renderable.theme-color - theme color for PWA (defaults to white)
+   @param {string/boolean} renderable.manifest - truthy value will add a manifest link.
+    If a string is passed – it'll be treated as a manifest url. Otherwise '/manifest.json'
+    will be specified.
+   @param {string/boolean} service-worker - service worker url, defaults to /service-worker.js
+
+   More meta
    @param {string} renderable.lang - when provided will render a meta tag and a document attribute
     for page language.
    @param {string} renderable.meta-title - content for title tag (preferred)
@@ -205,50 +180,39 @@
    @param {string} renderable.meta-description - meta description
    @param {map}    renderable.meta-props – meta which must be rendered as props
     {'fb:app_id' 123}
+   @param {string} renderable.head-tags - data structure to render into HTML of the document's head
 
+   Open Graph meta
    @param {string} renderable.og-title - OpenGraph title
    @param {string} renderable.og-description - OpenGraph description
    @param {string} renderable.og-image - absolute url to image for OpenGraph
    @param {string} renderable.og-type
    @param {string} renderable.og-url - OpenGraph page permalink
 
+   Twitter meta
    @param {string}  renderable.twitter-site - twitter @username. Required for all Twitter meta to render
    @param {string}  renderable.twitter-creator - twitter @username.
    @param {keyword} renderable.twitter-card-type - twitter card type
     one of #{:summary  :summary_large_image :app :player}
    @param {string}  renderable.twitter-description - twitter card description
    @param {string}  renderable.twitter-image - twitter image link. Twitter images are useu
-   @param {string}  renderable.twitter-image-alt - twitter image alt
-
-   @param {string/boolean} renderable.manifest - truthy value will add a manifest link.
-    If a string is passed – it'll be treated as a manifest url. Otherwise '/manifest.json'
-    will be specified.
-   @param {string} renderable.garden-css - data structure for Garden CSS
-   @param {string} renderable.stylesheet - stylesheet filename, will be plugged into the head, will cause
-    browser waiting for download.
-   @param {string/collection<string>} renderable.stylesheet-inline - stylesheet filename, will be inlined into the head.
-   @param {string} renderable.stylesheet-async - stylesheet filename, will be loaded asynchronously by script.
-   @param {string} renderable.script - script name, will be loaded asynchronously
-   @param {string} renderable.script-sync - script name, will be loaded synchronously
-   @param {string} renderable.js-module - entry point for JS modules. If you prefer your scripts to be served as modules
-   @param {string} renderable.on-dom-interactive-js - a js snippet to run once DOM is interactive or ready.
-   @param {string} renderable.head-tags - data structure to render into HTML of the document's head"
+   @param {string}  renderable.twitter-image-alt - twitter image alt"
   [renderable]
   (let [renderable (-> renderable
-                       (update-if-present :manifest #(if (string? %) % "/manifest.json"))
-                       (assoc :favicon (or-text (:favicon renderable) "/favicon.png"))
-                       cache-bust-assets
+                       u/default-manifest+icon
+                       cb/cache-bust-assets
                        provide-default-props)
         {:keys [body title head-tags
                 garden-css
                 stylesheet stylesheet-inline stylesheet-async
                 script script-sync on-dom-interactive-js
-                doc-attrs js-module favicon
+                doc-attrs js-module
+                favicon link-image-src link-apple-icon link-apple-startup-image
                 lang
-                manifest
-                meta-title meta-description meta-keywords
+                manifest service-worker
+                meta-title meta-description meta-keywords theme-color
                 livereload-script?]} renderable
-        doc-attrs  (assoc-some doc-attrs :lang lang)
+        doc-attrs  (u/assoc-some doc-attrs :lang lang)
         title      (or meta-title title)
         inline-css (if garden-css (garden/css garden-css))]
     (str
@@ -258,8 +222,19 @@
         [:head
 
          [:meta {:charset "utf-8"}]
-         (m "viewport", "width=device-width, initial-scale=1, maximum-scale=1")
-         [:link {:rel "icon", :type "image/png", :href favicon}]
+         (m "viewport", "width=device-width, initial-scale=1, maximum-scale=5")
+
+         ; image / icon links
+         (link-image :icon favicon)
+         (link-image :image_src link-image-src)
+         (link-image :apple-touch-icon link-apple-icon)
+         (link-image :apple-touch-startup-image link-apple-startup-image)
+
+         (comment
+           ; TODO improve support for apple-touch icon with different sizes
+           sizes="72x72"
+           sizes="114x114"
+           sizes="144x144")
 
          (if lang
            [:meta {:http-equiv "Content-Language" :content lang}])
@@ -273,6 +248,9 @@
          (if (seq on-dom-interactive-js)
            (on-dom-interactive-fragment on-dom-interactive-js))
 
+         (if service-worker
+           (swl/sw-script2 service-worker))
+
          (seq head-tags)
          ;
          (render-scripts--async script)
@@ -282,8 +260,8 @@
          [:title title]
          (m :description meta-description)
          (m :keywords meta-keywords)
+         (m :theme-color theme-color)
          (render-meta-props (:meta-props renderable))
-         (:meta-tags renderable)
          (twitter-meta renderable)
          (og-meta renderable)
 

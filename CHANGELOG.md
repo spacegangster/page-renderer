@@ -1,6 +1,28 @@
 # Change Log
 
 
+
+## [0.4.0] - 2019-07-23
+
+### New
+Experimental service worker generation. Pass the same map you use
+to generate a page and this function will generate a service worker
+that will pre-cache all the assets found in the map.
+Simple cache-busting included.
+`page-renderer.service-worker-generator/generate`
+Two additional options:
+- `renderable.sw-default-url` default route for your service worker, usually
+  the same as `start_url` in your `manifest.json` if you do a PWA.
+- `renderable.sw-add-assets` a vector with additional assets to pre-cache
+
+### Added to `page-renderer.core/render-page`
+- Service worker lifecycle script, just add `service-worker` key
+- Noscript fallback for async stylesheet appender script
+- Support for favicon extensions other than .png
+- Support for apple-touch-icon, apple-touch-startup-image, image_src meta
+
+
+
 ## [0.3.1] - 2019-07-06
 
 ### Added to `page-renderer.core/render-page`

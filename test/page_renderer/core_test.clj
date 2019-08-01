@@ -1,7 +1,7 @@
 (ns page-renderer.core-test
   (:require [clojure.test :refer :all]
-            [page-renderer.core :as pr]
-            [clojure.string :as s]))
+            [clojure.string :as s]
+            [page-renderer.core :as pr]))
 
 (def page-1
   {:title "title"

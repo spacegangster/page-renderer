@@ -11,6 +11,7 @@ Out of the box:
 - Basic SEO meta
 - Basic Twitter meta
 - Basic Open Graph (Facebook) meta
+- Basic Service Worker generator
 - Clojure stylesheets with `garden`
 - Clojure markup rendered with `hiccup`
 - Built-in cache-busting for assets
@@ -24,27 +25,49 @@ Out of the box:
 (ns pages.home)
 
 (def page
-  {:title "Page"
-   :og-image "https://birds.org/great-tit.png"
-   :description "Some bird stuff"
-   :twitter-site "birds.org"
-   :garden-css ; critical path css
-    [:h1 {:font-size :20px}]
-   :stylesheet-async "large-stuff.css"
-   :body [:body.page [:h1 "Ah, a Page!"]]})
+   ; essentials
+  {:title "Lightpad"
+   :body [:body.page [:h1 "Ah, a Page!"]]
+   :head-tags [[:meta {:name "custom" :property "stuff"}]]
+   :stylesheet-async "large-stuff.css" ; injects an async renderer(s)
+   :script "/app.js" ; async by default
+   :garden-css [:h1 {:font-size :20px}] ; critical path css
+   
+   ; seo and meta
+   :description "Like a notepad but cyberpunk"
+   :og-image "https://lightpad.ai/favicon.png"
+   :twitter-site "@lightpad_ai"
+   
+   ; PWA stuff
+   :manifest    true
+   :lang        "en"
+   :theme-color "hsl(0, 0%, 96%)"
+   :service-worker "/service-worker.js" ; will inject also a service worker lifecycle script
+   :sw-default-url "/app"
+   :sw-add-assets ["/icons/fonts/icomoon.woff", "/lightning-150.png"]})
 ```
 
 ### 2. Wire it up to your routes (e.g. Compojure)
-``` clojure
+```clojure
 (ns server
  (:require [page-renderer.core :as pr]
+           [page-renderer.service-worker-generator :as sw]
            [compojure.core :refer [defroutes GET]] 
            [pages.home :as p]))
 
 (defroutes
-  (GET "/" [] {:status 200
-               :headers {"Content-Type" "text/html"}
-               :body (pr/render-page p/page)})
+  (GET "/" []
+   {:status 200
+    :headers {"Content-Type" "text/html"}
+    :body (pr/render-page p/page)})
+
+    
+  (GET "/service-worker.js" []
+   {:status 200
+    :headers {"Content-Type" "text/javascript"}
+    ; will generate a simple Workbox-based service worker on the fly with cache-busting
+    :body (sw/generate p/page)})
+
   (GET "/quicker-way" [] (pr/respond-page p/page)))
 ```
 

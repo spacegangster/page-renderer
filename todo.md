@@ -13,5 +13,7 @@ Support JS init on dom interactive
 
 
 # Planned
+- ability to disable cachebusting
+- service worker generation
 
 Drop Garden dependency
