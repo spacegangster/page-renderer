@@ -1,6 +1,6 @@
 # page-renderer
 
-##### HTML pages with proper meta and styles in pure Clojure
+##### End-user-ready HTML pages with proper meta, handy assets bindings and PWA features in pure Clojure
 
 [![Clojars Project](https://img.shields.io/clojars/v/page-renderer.svg)](https://clojars.org/page-renderer)
 [![CircleCI](https://circleci.com/gh/spacegangster/page-renderer.svg?style=svg)](https://circleci.com/gh/spacegangster/page-renderer)
