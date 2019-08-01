@@ -236,6 +236,12 @@ last modified date on the file. If the file can't be found on the classpath
 or inside a local `resources/public` directory it will receive the library load time,
 roughly equaling the application start time.
 
+## Who uses it:
+
+Currently I use it for all my website projects including:
+- https://lightpad.ai – includes generated service worker, installable PWA
+- https://spacegangster.io
+
 ## License
 
 Copyright © 2019 Ivan Fedorov
