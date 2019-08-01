@@ -14,7 +14,6 @@
    :twitter-site "birds.org"
    :garden-css ; critical path css
     [:h1 {:font-size :20px}]
-   :stylesheet-async "large-stuff.css"
    :body [:body.page [:h1 "Ah, a Page!"]]})
 
 (def page-3
@@ -27,21 +26,76 @@
    :stylesheet ["large-stuff.css" "large-stuff2.css"]
    :body [:div.page "a page"]})
 
+(def page-5
+  {:title "Page"
+   :service-worker "/sw-2.js"
+   :body [:div.page "a page"]})
+
+
+
 (defn- slash-mtime [page-str]
-  (s/replace page-str #"mtime=\d+" "mtime=stub"))
+  (-> page-str
+      (s/replace #"mtime=\d+" "mtime=stub")
+      (s/replace #"hash=[a-z\d]+" "hash=stub")))
 
 (def ethalon-page
-  (slash-mtime
-  "<!DOCTYPE html><html ><head><meta charset=\"utf-8\" /><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=1\"><link href=\"/favicon.png?mtime=stub\" rel=\"icon\" type=\"image/png\" /><title>title</title><meta property=\"og:title\" content=\"title\"></head><body class=\"quito\"></body></html>"))
+  "<!DOCTYPE html><html ><head><meta charset=\"utf-8\" /><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=5\"><link href=\"/favicon.png?hash=stub\" rel=\"icon\" type=\"image/png\" /><link href=\"/favicon.png?hash=stub\" rel=\"image_src\" type=\"image/png\" /><link href=\"/favicon.png?hash=stub\" rel=\"apple-touch-icon\" type=\"image/png\" /><link href=\"/favicon.png?hash=stub\" rel=\"apple-touch-startup-image\" type=\"image/png\" /><title>title</title><meta name=\"theme-color\" content=\"white\"><meta property=\"og:title\" content=\"title\"></head><body class=\"quito\"></body></html>")
 
 (def ethalon-page-2
-  "<!DOCTYPE html><html ><head><meta charset=\"utf-8\" /><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=1\"><link href=\"/favicon.png?mtime=stub\" rel=\"icon\" type=\"image/png\" /><title>Page</title><meta name=\"description\" content=\"Some bird stuff\"><meta name=\"twitter:card\" content=\"summary\"><meta name=\"twitter:site\" content=\"birds.org\"><meta name=\"twitter:description\" content=\"Some bird stuff\"><meta name=\"twitter:image\" content=\"https://birds.org/great-tit.png?mtime=stub\"><meta property=\"og:title\" content=\"Page\"><meta property=\"og:description\" content=\"Some bird stuff\"><meta property=\"og:image\" content=\"https://birds.org/great-tit.png?mtime=stub\"><style id=\"inline-css--garden\">h1 {\n  font-size: 20px;\n}</style></head><body class=\"page\"><h1>Ah, a Page!</h1><script>(function(){\nvar link = document.createElement('link');\nlink.rel='stylesheet';\nlink.href='large-stuff.css?mtime=stub';\nlink.type='text/css';\ndocument.head.appendChild(link);\n})()</script></body></html>")
+  "<!DOCTYPE html><html ><head><meta charset=\"utf-8\" /><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=5\"><link href=\"/favicon.png?hash=stub\" rel=\"icon\" type=\"image/png\" /><link href=\"/favicon.png?hash=stub\" rel=\"image_src\" type=\"image/png\" /><link href=\"/favicon.png?hash=stub\" rel=\"apple-touch-icon\" type=\"image/png\" /><link href=\"/favicon.png?hash=stub\" rel=\"apple-touch-startup-image\" type=\"image/png\" /><title>Page</title><meta name=\"description\" content=\"Some bird stuff\"><meta name=\"theme-color\" content=\"white\"><meta name=\"twitter:card\" content=\"summary\"><meta name=\"twitter:site\" content=\"birds.org\"><meta name=\"twitter:description\" content=\"Some bird stuff\"><meta name=\"twitter:image\" content=\"https://birds.org/great-tit.png?hash=stub\"><meta property=\"og:title\" content=\"Page\"><meta property=\"og:description\" content=\"Some bird stuff\"><meta property=\"og:image\" content=\"https://birds.org/great-tit.png?hash=stub\"><style id=\"inline-css--garden\">h1 {
+  font-size: 20px;
+}</style></head><body class=\"page\"><h1>Ah, a Page!</h1></body></html>")
 
 (def ethalon-page-3
-  "<!DOCTYPE html><html ><head><meta charset=\"utf-8\" /><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=1\"><link href=\"/favicon.png?mtime=stub\" rel=\"icon\" type=\"image/png\" /><title>Page</title><meta property=\"og:title\" content=\"Page\"></head><body class=\"page\"><h1>Ah, a Page!</h1><script>(function(){\nvar link = document.createElement('link');\nlink.rel='stylesheet';\nlink.href='large-stuff.css?mtime=stub';\nlink.type='text/css';\ndocument.head.appendChild(link);\n})()</script><script>(function(){\nvar link = document.createElement('link');\nlink.rel='stylesheet';\nlink.href='large-stuff2.css?mtime=stub';\nlink.type='text/css';\ndocument.head.appendChild(link);\n})()</script></body></html>")
+  "<!DOCTYPE html><html ><head><meta charset=\"utf-8\" /><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=5\"><link href=\"/favicon.png?hash=stub\" rel=\"icon\" type=\"image/png\" /><link href=\"/favicon.png?hash=stub\" rel=\"image_src\" type=\"image/png\" /><link href=\"/favicon.png?hash=stub\" rel=\"apple-touch-icon\" type=\"image/png\" /><link href=\"/favicon.png?hash=stub\" rel=\"apple-touch-startup-image\" type=\"image/png\" /><title>Page</title><meta name=\"theme-color\" content=\"white\"><meta property=\"og:title\" content=\"Page\"></head><body class=\"page\"><h1>Ah, a Page!</h1>script(function(){
+var link = document.createElement('link');
+link.rel='stylesheet';
+link.href='large-stuff.css?hash=stub';
+link.type='text/css';
+document.head.appendChild(link);
+})()noscriptlink{:rel \"stylesheet\", :type \"text/css\", :href \"large-stuff.css?hash=stub\"}script(function(){
+var link = document.createElement('link');
+link.rel='stylesheet';
+link.href='large-stuff2.css?hash=stub';
+link.type='text/css';
+document.head.appendChild(link);
+})()noscriptlink{:rel \"stylesheet\", :type \"text/css\", :href \"large-stuff2.css?hash=stub\"}</body></html>")
 
 (def ethalon-page-4
-  "<!DOCTYPE html><html ><head><meta charset=\"utf-8\" /><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=1\"><link href=\"/favicon.png?mtime=stub\" rel=\"icon\" type=\"image/png\" /><title>Page</title><meta property=\"og:title\" content=\"Page\"><link href=\"large-stuff.css?mtime=stub\" rel=\"stylesheet\" type=\"text/css\" /><link href=\"large-stuff2.css?mtime=stub\" rel=\"stylesheet\" type=\"text/css\" /></head><body><div class=\"page\">a page</div></body></html>")
+  "<!DOCTYPE html><html ><head><meta charset=\"utf-8\" /><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=5\"><link href=\"/favicon.png?hash=stub\" rel=\"icon\" type=\"image/png\" /><link href=\"/favicon.png?hash=stub\" rel=\"image_src\" type=\"image/png\" /><link href=\"/favicon.png?hash=stub\" rel=\"apple-touch-icon\" type=\"image/png\" /><link href=\"/favicon.png?hash=stub\" rel=\"apple-touch-startup-image\" type=\"image/png\" /><title>Page</title><meta name=\"theme-color\" content=\"white\"><meta property=\"og:title\" content=\"Page\"><link href=\"large-stuff.css?hash=stub\" rel=\"stylesheet\" type=\"text/css\" /><link href=\"large-stuff2.css?hash=stub\" rel=\"stylesheet\" type=\"text/css\" /></head><body><div class=\"page\">a page</div></body></html>")
+
+(def ethalon-page-5
+  "<!DOCTYPE html><html ><head><meta charset=\"utf-8\" /><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=5\"><link href=\"/favicon.png?hash=stub\" rel=\"icon\" type=\"image/png\" /><link href=\"/favicon.png?hash=stub\" rel=\"image_src\" type=\"image/png\" /><link href=\"/favicon.png?hash=stub\" rel=\"apple-touch-icon\" type=\"image/png\" /><link href=\"/favicon.png?hash=stub\" rel=\"apple-touch-startup-image\" type=\"image/png\" /><script type=\"module\">
+
+import { Workbox } from 'https://storage.googleapis.com/workbox-cdn/releases/4.1.0/workbox-window.prod.mjs';
+
+const promptStr = 'New version of the application is downloaded, do you want to update? May take two reloads.';
+function createUIPrompt(opts) {
+  if (confirm(promptStr)) {
+     opts.onAccept()
+  }
+}
+
+if ('serviceWorker' in navigator) {
+  const wb = new Workbox('/sw-2.js');
+  wb.addEventListener('waiting', (event) => {
+    const prompt = createUIPrompt({
+      onAccept: async () => {
+        wb.addEventListener('activated', (event) => {
+          console.log('sw-init: activated')
+          window.location.reload();
+        })
+        wb.addEventListener('controlling', (event) => {
+          console.log('sw-init: controlling')
+        });
+        wb.messageSW({type: 'SKIP_WAITING'});
+      }
+    })
+  });
+  wb.register();
+}
+</script><title>Page</title><meta name=\"theme-color\" content=\"white\"><meta property=\"og:title\" content=\"Page\"></head><body><div class=\"page\">a page</div></body></html>")
+
 
 
 (deftest sanity
@@ -64,20 +118,25 @@
     (is (= ethalon-page-4
            (slash-mtime (pr/render-page page-4))))))
 
+(deftest service-worker-lifecycle-injection
+  (testing "injects lifecycle snippet with a correct url"
+    (is (= ethalon-page-5
+           (slash-mtime (pr/render-page page-5))))))
+
 (deftest manifest-presence
   (testing "Manifest test"
     (let [res (slash-mtime (pr/render-page (assoc page-1 :manifest true)))]
       (is (or
-            (re-find #"<link href=\"/manifest.json\?mtime=stub\" rel=\"manifest\".?.?>" res)
-            (re-find #"<link rel=\"manifest\" href=\"/manifest.json\?mtime=stub\".?.?>" res))))))
+            (re-find #"<link href=\"/manifest.json\?hash=stub\" rel=\"manifest\".?.?>" res)
+            (re-find #"<link rel=\"manifest\" href=\"/manifest.json\?hash=stub\".?.?>" res))))))
 
 (deftest lang-presence
   (testing "Lang presence test"
     (let [res (pr/render-page (assoc page-2 :lang :en))]
       (is (and
             (re-find #"<html.*lang=\"en\".*?>" res)
-            (re-find #"<meta.*http-equiv=\"Content-Language\".*?/>" res)
-            )))))
+            (re-find #"<meta.*http-equiv=\"Content-Language\".*?/>" res))))))
 
 
-;(run-tests 'page-renderer.core-test)
+
+; (run-tests 'page-renderer.core-test)

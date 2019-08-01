@@ -8,9 +8,7 @@
 
 workbox.precaching.precacheAndRoute([
     ${precache-assets}
-], {
-  ignoreURLParametersMatching: [/hash/]
-})
+], { ignoreURLParametersMatching: [/hash/] })
 
 workbox.routing.registerNavigationRoute(
     workbox.precaching.getCacheKeyForURL('${default-url}'), {
@@ -20,19 +18,18 @@ workbox.routing.registerNavigationRoute(
 )
 
 workbox.routing.setCatchHandler(({event}) => {
-  console.log('swm: event ', event)
+    console.log('swm: event ', event)
 })
 
 addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    console.log('swm: skipping waiting')
-    skipWaiting()
-  }
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        console.log('swm: skipping waiting')
+        skipWaiting()
+    }
 })
 
 self.addEventListener('activate', () => {
     console.log('swm: activated')
-
 })
 
 self.addEventListener('install', () => {
@@ -55,7 +52,8 @@ self.addEventListener('install', () => {
   (str "{ url: '" url "', revision: '" revision "' }"))
 
 
-(defn generate
+
+(defn generate-script
   "renderable.sw-default-url {string} – application default url.
     Must be an absolute path like '/app'. Defaults to '/'. Will be used in a regexp.
    renderable.sw-add-assets {collection<string>} - a collection of additional
@@ -70,7 +68,16 @@ self.addEventListener('install', () => {
              set)
         sw-assets-with-revision (map with-revision sw-assets-to-precache)
         sw-assets-str (s/join ",\n    " (map sw-asset-object sw-assets-with-revision))]
-    {:body    (u/compile-template template {:precache-assets sw-assets-str
-                                            :default-url     (:sw-default-url renderable "/")})
-     :headers {"Content-Type" "text/javascript; charset=utf-8"}
-     :status  200}))
+    (u/compile-template template {:precache-assets sw-assets-str
+                                  :default-url     (:sw-default-url renderable "/")})))
+
+
+(defn generate-ring-response
+  "renderable.sw-default-url {string} – application default url.
+    Must be an absolute path like '/app'. Defaults to '/'. Will be used in a regexp.
+   renderable.sw-add-assets {collection<string>} - a collection of additional
+    assets you want to precache, like [\"/fonts/icon-font.woff\",\"/logo.png\"]"
+  [renderable]
+  {:body    (generate-script renderable)
+   :headers {"Content-Type" "text/javascript; charset=utf-8"}
+   :status  200})

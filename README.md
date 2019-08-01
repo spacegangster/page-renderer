@@ -24,7 +24,7 @@ Out of the box:
 ```clojure
 (ns pages.home)
 
-(def page
+(defn page [req]
    ; essentials
   {:title "Lightpad"
    :body [:body.page [:h1 "Ah, a Page!"]]
@@ -32,12 +32,12 @@ Out of the box:
    :stylesheet-async "large-stuff.css" ; injects an async renderer(s)
    :script "/app.js" ; async by default
    :garden-css [:h1 {:font-size :20px}] ; critical path css
-   
+
    ; seo and meta
    :description "Like a notepad but cyberpunk"
    :og-image "https://lightpad.ai/favicon.png"
    :twitter-site "@lightpad_ai"
-   
+
    ; PWA stuff
    :manifest    true
    :lang        "en"
@@ -56,22 +56,24 @@ Out of the box:
            [pages.home :as p]))
 
 (defroutes
-  (GET "/" []
+  (GET "/" req
    {:status 200
     :headers {"Content-Type" "text/html"}
-    :body (pr/render-page p/page)})
+    :body (pr/render-page (p/page req)})
 
-    
-  (GET "/service-worker.js" []
+  (GET "/service-worker.js" req
    {:status 200
     :headers {"Content-Type" "text/javascript"}
     ; will generate a simple Workbox-based service worker on the fly with cache-busting
-    :body (sw/generate p/page)})
+    :body (sw/generate (p/page req))})
 
-  (GET "/quicker-way" [] (pr/respond-page p/page)))
+  (GET "/quicker-way" req (pr/respond-page (p/page req))))
 ```
 
+
 ### 3. Celebrate
+
+##### Page output
 ```html
 <!DOCTYPE html>
 <html>
@@ -108,6 +110,10 @@ Out of the box:
 </body>
 </html>
 ```
+
+##### Service Worker
+
+
 
 ## API
 Use `page-renderer.core/render-page` and `page-renderer.core/respond-page`

@@ -3,10 +3,14 @@
             [page-renderer.service-worker-generator :as swg]
             [page-renderer.cachebusting :as fu]))
 
+
 (def cache-bust fu/cache-bust)
 
 (def render-page core/render-page)
 
 (def respond-page core/respond-page)
 
-(def generate-service-worker swg/generate)
+
+(def generate-service-worker swg/generate-script)
+
+(def respond-service-worker swg/generate-ring-response)
