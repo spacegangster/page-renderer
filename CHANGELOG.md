@@ -2,20 +2,24 @@
 
 
 
-## [0.4.0] - 2019-07-23
+## [0.4.0-alpha] - 2019-08-01
 
 ### New
 Experimental service worker generation. Pass the same map you use
 to generate a page and this function will generate a service worker
 that will pre-cache all the assets found in the map.
 Simple cache-busting included.
-`page-renderer.service-worker-generator/generate`
+`page-renderer.api/generate-service-worker`
 Two additional options:
 - `renderable.sw-default-url` default route for your service worker, usually
   the same as `start_url` in your `manifest.json` if you do a PWA.
 - `renderable.sw-add-assets` a vector with additional assets to pre-cache
 
-### Added to `page-renderer.core/render-page`
+`page-renderer.api` namespace
+- Same public members as in `page-renderer.core` plus `generate-service-worker` 
+  and `respond-service-worker`
+
+### Added to `page-renderer.api/render-page`
 - Service worker lifecycle script, just add `service-worker` key
 - Noscript fallback for async stylesheet appender script
 - Support for favicon extensions other than .png

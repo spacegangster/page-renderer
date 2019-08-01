@@ -7,6 +7,7 @@ Add Language support with lang on doc and a meta tag
   [:meta {:http-equiv "Content-Language" :content "en"}]
 Support multiple async stylesheets
 Support JS init on dom interactive
+- service worker generation
 
 
 # In progress 
@@ -14,6 +15,7 @@ Support JS init on dom interactive
 
 # Planned
 - ability to disable cachebusting
-- service worker generation
+
+Fix cachebusting hashing, document it
 
 Drop Garden dependency

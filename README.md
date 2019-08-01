@@ -8,10 +8,8 @@
 
 ## Features
 Out of the box:
-- Basic SEO meta
-- Basic Twitter meta
-- Basic Open Graph (Facebook) meta
-- Basic Service Worker generator
+- Basic meta for SEO, Twitter, Facebook (Open Graph), link sharing
+- Basic Service Worker generation based on Workbox
 - Clojure stylesheets with `garden`
 - Clojure markup rendered with `hiccup`
 - Built-in cache-busting for assets
@@ -50,7 +48,7 @@ Out of the box:
 ### 2. Wire it up to your routes (e.g. Compojure)
 ```clojure
 (ns server
- (:require [page-renderer.core :as pr]
+ (:require [page-renderer.api :as pr]
            [page-renderer.service-worker-generator :as sw]
            [compojure.core :refer [defroutes GET]] 
            [pages.home :as p]))
@@ -95,6 +93,37 @@ Out of the box:
     font-size: 20px;
     }
     </style>
+    
+    <!-- Service Worker Lifecycle Snippet -->
+    <script>
+    import { Workbox } from 'https://storage.googleapis.com/workbox-cdn/releases/4.1.0/workbox-window.prod.mjs';
+    
+    const promptStr = 'New version of the application is downloaded, do you want to update? May take two reloads.';
+    function createUIPrompt(opts) {
+      if (confirm(promptStr)) {
+         opts.onAccept()
+      }
+    }
+    
+    if ('serviceWorker' in navigator) {
+      const wb = new Workbox('/service-worker.js');
+      wb.addEventListener('waiting', (event) => {
+        const prompt = createUIPrompt({
+          onAccept: async () => {
+            wb.addEventListener('activated', (event) => {
+              console.log('sw-init: activated')
+              window.location.reload();
+            })
+            wb.addEventListener('controlling', (event) => {
+              console.log('sw-init: controlling')
+            });
+            wb.messageSW({type: 'SKIP_WAITING'});
+          }
+        })
+      });
+      wb.register();
+    }
+    </script>
 </head>
 <body class="page">
     <h1>Ah, a Page!</h1>
@@ -112,7 +141,43 @@ Out of the box:
 ```
 
 ##### Service Worker
+```js
+importScripts('https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js')
 
+workbox.precaching.precacheAndRoute([
+    { url: '/heavy-stuff.css', revision: 'file-hash' },
+    { url: '/fonts/icomoon.woff', revision: 'file-hash' },
+    { url: '/lightpad/compiled/app.js', revision: 'file-hash' },
+    { url: '/favicon.png', revision: 'file-hash' },
+    { url: '/app', revision: 'file-hash' }
+], { ignoreURLParametersMatching: [/hash/] })
+
+workbox.routing.registerNavigationRoute(
+    workbox.precaching.getCacheKeyForURL('/app'), {
+        whitelist: [ /^\/app/ ],
+        blacklist: [ /^\/app\/service-worker.js/ ]
+    }
+)
+
+workbox.routing.setCatchHandler(({event}) => {
+    console.log('swm: event ', event)
+})
+
+addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        console.log('swm: skipping waiting')
+        skipWaiting()
+    }
+})
+
+self.addEventListener('activate', () => {
+    console.log('swm: activated')
+})
+
+self.addEventListener('install', () => {
+    console.log('swm: installed')
+})
+```
 
 
 ## API
