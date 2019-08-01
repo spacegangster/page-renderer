@@ -8,8 +8,8 @@
 
 ## Features
 Out of the box:
-- Basic meta for SEO, Twitter, Facebook (Open Graph), link sharing
-- Basic Service Worker generation based on Workbox
+- Meta for SEO, Twitter, Facebook (Open Graph), link sharing
+- Precaching Service Worker generation based on Workbox
 - Clojure stylesheets with `garden`
 - Clojure markup rendered with `hiccup`
 - Built-in cache-busting for assets
@@ -49,7 +49,6 @@ Out of the box:
 ```clojure
 (ns server
  (:require [page-renderer.api :as pr]
-           [page-renderer.service-worker-generator :as sw]
            [compojure.core :refer [defroutes GET]] 
            [pages.home :as p]))
 
@@ -63,7 +62,7 @@ Out of the box:
    {:status 200
     :headers {"Content-Type" "text/javascript"}
     ; will generate a simple Workbox-based service worker on the fly with cache-busting
-    :body (sw/generate (p/page req))})
+    :body (pr/generate-service-worker (p/page req))})
 
   (GET "/quicker-way" req (pr/respond-page (p/page req))))
 ```
@@ -236,11 +235,13 @@ last modified date on the file. If the file can't be found on the classpath
 or inside a local `resources/public` directory it will receive the library load time,
 roughly equaling the application start time.
 
-## Who uses it:
+
+## Where to see in action:
 
 Currently I use it for all my website projects including:
-- https://lightpad.ai – includes generated service worker, installable PWA
-- https://spacegangster.io
+- [Lightpad.ai](https://lightpad.ai) – includes generated service worker, installable PWA
+- [Spacegangster.io](https://spacegangster.io) – my website
+
 
 ## License
 
