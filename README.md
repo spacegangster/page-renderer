@@ -1,6 +1,6 @@
 # page-renderer
 
-##### End-user-ready HTML pages with proper meta, handy assets bindings and PWA features in pure Clojure
+##### End-user-ready HTML pages and service workers with social meta, async assets bindings and PWA features
 
 [![Clojars Project](https://img.shields.io/clojars/v/page-renderer.svg)](https://clojars.org/page-renderer)
 [![CircleCI](https://circleci.com/gh/spacegangster/page-renderer.svg?style=svg)](https://circleci.com/gh/spacegangster/page-renderer)
@@ -9,7 +9,7 @@
 ## Features
 Out of the box:
 - Meta for SEO, Twitter, Facebook (Open Graph), link sharing
-- Precaching Service Worker generation based on Workbox
+- Precaching Service Worker generation based on [Workbox](https://developers.google.com/web/tools/workbox/)
 - Clojure stylesheets with `garden`
 - Clojure markup rendered with `hiccup`
 - Built-in cache-busting for assets
@@ -18,7 +18,7 @@ Out of the box:
 
 
 ## Requirements
-- java 9 or later
+- Java 8 or later. Java 9 allows better cache-busting with real content hashing.
 
 ## Usage
 
