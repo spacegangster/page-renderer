@@ -49,9 +49,9 @@
 
 
 (defn make-stylesheet-appender-raw [stylesheet-path]
-[:script
-(str
-"(function(){
+  [:script
+    (str
+      "(function(){
 var link = document.createElement('link');
 link.rel='stylesheet';
 link.href='" stylesheet-path "';

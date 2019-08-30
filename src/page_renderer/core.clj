@@ -132,7 +132,7 @@
   (cond
     (nil? stylesheet-async)     nil
     (string? stylesheet-async) (u/make-stylesheet-appender-raw stylesheet-async)
-    (coll? stylesheet-async)   (flatten (map u/make-stylesheet-appender stylesheet-async))
+    (coll? stylesheet-async)   (apply concat (map u/make-stylesheet-appender stylesheet-async))
     :else (throw (Exception. "not a collection or a string"))))
 
 (defn- link-image [rel src]

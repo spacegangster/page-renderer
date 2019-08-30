@@ -16,6 +16,6 @@ Support JS init on dom interactive
 # Planned
 - ability to disable cachebusting
 
-Fix cachebusting hashing, document it
+- fix cachebusting hashing, document it
 
 Drop Garden dependency

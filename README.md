@@ -16,6 +16,10 @@ Out of the box:
 - Async stylesheets loading
 - And also: that responsive `viewport=something` meta tag and language tag
 
+
+## Requirements
+- java 9 or later
+
 ## Usage
 
 ### 1. Define a page

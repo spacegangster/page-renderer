@@ -47,19 +47,19 @@
 }</style></head><body class=\"page\"><h1>Ah, a Page!</h1></body></html>")
 
 (def ethalon-page-3
-  "<!DOCTYPE html><html ><head><meta charset=\"utf-8\" /><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=5\"><link href=\"/favicon.png?hash=stub\" rel=\"icon\" type=\"image/png\" /><link href=\"/favicon.png?hash=stub\" rel=\"image_src\" type=\"image/png\" /><link href=\"/favicon.png?hash=stub\" rel=\"apple-touch-icon\" type=\"image/png\" /><link href=\"/favicon.png?hash=stub\" rel=\"apple-touch-startup-image\" type=\"image/png\" /><title>Page</title><meta name=\"theme-color\" content=\"white\"><meta property=\"og:title\" content=\"Page\"></head><body class=\"page\"><h1>Ah, a Page!</h1>script(function(){
+  "<!DOCTYPE html><html ><head><meta charset=\"utf-8\" /><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=5\"><link href=\"/favicon.png?hash=stub\" rel=\"icon\" type=\"image/png\" /><link href=\"/favicon.png?hash=stub\" rel=\"image_src\" type=\"image/png\" /><link href=\"/favicon.png?hash=stub\" rel=\"apple-touch-icon\" type=\"image/png\" /><link href=\"/favicon.png?hash=stub\" rel=\"apple-touch-startup-image\" type=\"image/png\" /><title>Page</title><meta name=\"theme-color\" content=\"white\"><meta property=\"og:title\" content=\"Page\"></head><body class=\"page\"><h1>Ah, a Page!</h1><script>(function(){
 var link = document.createElement('link');
 link.rel='stylesheet';
 link.href='large-stuff.css?hash=stub';
 link.type='text/css';
 document.head.appendChild(link);
-})()noscriptlink{:rel \"stylesheet\", :type \"text/css\", :href \"large-stuff.css?hash=stub\"}script(function(){
+})()</script><noscript><link href=\"large-stuff.css?hash=stub\" rel=\"stylesheet\" type=\"text/css\" /></noscript><script>(function(){
 var link = document.createElement('link');
 link.rel='stylesheet';
 link.href='large-stuff2.css?hash=stub';
 link.type='text/css';
 document.head.appendChild(link);
-})()noscriptlink{:rel \"stylesheet\", :type \"text/css\", :href \"large-stuff2.css?hash=stub\"}</body></html>")
+})()</script><noscript><link href=\"large-stuff2.css?hash=stub\" rel=\"stylesheet\" type=\"text/css\" /></noscript></body></html>")
 
 (def ethalon-page-4
   "<!DOCTYPE html><html ><head><meta charset=\"utf-8\" /><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=5\"><link href=\"/favicon.png?hash=stub\" rel=\"icon\" type=\"image/png\" /><link href=\"/favicon.png?hash=stub\" rel=\"image_src\" type=\"image/png\" /><link href=\"/favicon.png?hash=stub\" rel=\"apple-touch-icon\" type=\"image/png\" /><link href=\"/favicon.png?hash=stub\" rel=\"apple-touch-startup-image\" type=\"image/png\" /><title>Page</title><meta name=\"theme-color\" content=\"white\"><meta property=\"og:title\" content=\"Page\"><link href=\"large-stuff.css?hash=stub\" rel=\"stylesheet\" type=\"text/css\" /><link href=\"large-stuff2.css?hash=stub\" rel=\"stylesheet\" type=\"text/css\" /></head><body><div class=\"page\">a page</div></body></html>")
