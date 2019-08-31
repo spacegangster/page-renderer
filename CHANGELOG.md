@@ -1,6 +1,11 @@
 # Change Log
 
 
+## [0.4.0] - 2019-08-01
+### Fixed
+- `stylesheet-async` parameter working with a collection of stylesheet paths.
+### Improved
+Readme - new section on service workers and PWA assets params.
 
 ## [0.4.0-alpha] - 2019-08-01
 
