@@ -172,6 +172,10 @@
     If a string is passed – it'll be treated as a manifest url. Otherwise '/manifest.json'
     will be specified.
    @param {string/boolean} service-worker - service worker url, defaults to /service-worker.js
+   @param {string} renderable.sw-default-url – application default url.
+    Must be an absolute path like '/app'. Defaults to '/'. Will be used in a regexp.
+   @param {collection<string>} renderable.sw-add-assets - a collection of additional
+    assets you want to precache, like [\"/fonts/icon-font.woff\" \"/logo.png\"]
 
    More meta
    @param {string} renderable.lang - when provided will render a meta tag and a document attribute
