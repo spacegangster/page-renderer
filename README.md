@@ -242,18 +242,18 @@ Twitter meta – if you want it – be sure to include `:twitter-site` or `:twit
 - `@param {string}  renderable.twitter-image-alt` - twitter image alt
 
 ##### PWA and Service Worker
-–  `@param {string} renderable.link-image-src` - url to image-src
-–  `@param {string} renderable.link-apple-icon` - url to image used for apple-touch-icon link
-–  `@param {string} renderable.link-apple-startup-image` - url to image used for apple-touch-startup-image link
-–  `@param {string} renderable.theme-color` - theme color for PWA (defaults to white)
-–  `@param {string/boolean} renderable.manifest` - truthy value will add a manifest link.
-    If a string is passed – it'll be treated as a manifest url. Otherwise '/manifest.json'
-    will be specified.
-–  `@param {string/boolean} service-worker` - service worker url, defaults to /service-worker.js
-–  `@param {string} renderable.sw-default-url` – application default url.
-    Must be an absolute path like '/app'. Defaults to '/'. Will be used in a regexp.
-–  `@param {collection<string>} renderable.sw-add-assets` - a collection of additional
-    assets you want to precache, like ["/fonts/icon-font.woff" "/logo.png"]
+- `@param {string} renderable.link-image-src` - url to image-src
+- `@param {string} renderable.link-apple-icon` - url to image used for apple-touch-icon link
+- `@param {string} renderable.link-apple-startup-image` - url to image used for apple-touch-startup-image link
+- `@param {string} renderable.theme-color` - theme color for PWA (defaults to white)
+- `@param {string/boolean} renderable.manifest` - truthy value will add a manifest link.
+   If a string is passed – it'll be treated as a manifest url. Otherwise '/manifest.json'
+   will be specified.
+- `@param {string/boolean} service-worker` - service worker url, defaults to /service-worker.js
+- `@param {string} renderable.sw-default-url` – application default url.
+   Must be an absolute path like '/app'. Defaults to '/'. Will be used in a regexp.
+- `@param {collection<string>} renderable.sw-add-assets` - a collection of additional
+   assets you want to precache, like ["/fonts/icon-font.woff" "/logo.png"]
 
 ##### Assets
 - `@param {string} renderable.garden-css` - data structure for Garden CSS
