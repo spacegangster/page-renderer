@@ -184,10 +184,34 @@ self.addEventListener('install', () => {
 
 
 ## API
-Use `page-renderer.core/render-page` and `page-renderer.core/respond-page`
-Both functions have the same signature.
 
-Each function accepts a map that may have properties enlisted below:
+Use `page-renderer.api` namespace.
+
+```
+(defn ^String render-page [renderable])
+```
+Produces an html string.
+
+```
+(defn ^String generate-service-worker [renderable])
+```
+Produces a JavaScript ServiceWorker script text. Service worker will additionally
+load [Workbox](https://developers.google.com/web/tools/workbox/) script.
+
+
+```
+(defn ^Map respond-page [renderable])
+```
+Produces Ring compatible response map with status 200.
+
+```
+(defn ^Map respond-service-worker [^Map renderable])
+```
+Produces Ring compatible response map with status 200.
+
+`renderable` – is a map that may have the following fields
+
+##### Mains
 
 - `@param {hash-map} renderable` - the props map 
 - `@param {vector} renderable.body` - data structure for Hiccup to render into HTML of the document's body
@@ -231,11 +255,27 @@ browser waiting for download.
 - `@param {string/collection<string>} renderable.script-sync` - script name, will be loaded synchronously
 - `@param {string/collection<string>} renderable.js-module` - entry point for JS modular app. If you prefer your scripts to be served as modules
 
+## Service Worker generation
+`page-renderer` allows you to produce a full-blown offline-ready
+ [PWA](https://developers.google.com/web/progressive-web-apps/) fast.
+Your users will be able to "install" it as a PWA app on mobile platforms or as Chrome
+app on desktop platforms. All you need to do is just add another route to your scheme.
+
+### How it works
+If you use `service-worker` field then `page-renderer` will generate
+a precaching service worker. The worker utilizes
+ [Workbox (by Google)](https://developers.google.com/web/tools/workbox/)
+and will precache all the assets that you've defined in `renderable`, and will be able
+to serve them offline. It also does proper cache-busting with hashes.
+`page-renderer` will also inject a service worker lifecycle management script into
+your page so that your users will be prompted to download a newer version of your
+website when it's ready.
+
 ## How cache-busting works here
 `page-renderer` provides very basic, but bulletproof cache-busting by providing
-a url param with last modification timestamp, like `/file?mtime=21112`.
-For every stylesheet, script and image – it will attempt to look up for the
-last modified date on the file. If the file can't be found on the classpath
+a url param with content-hash (or last modification timestamp), like `/file?hash=abec112221122`.
+For every stylesheet, script and image on resource paths – it will generate
+a content hash. If the file can't be found on the classpath
 or inside a local `resources/public` directory it will receive the library load time,
 roughly equaling the application start time.
 

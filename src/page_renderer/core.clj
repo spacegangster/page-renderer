@@ -3,7 +3,8 @@
             [hiccup.core :as hiccup]
             [page-renderer.service-worker-lifecycle :as swl]
             [page-renderer.cachebusting :as cb]
-            [page-renderer.util :as u]))
+            [page-renderer.util :as u])
+  (:import (java.util Map)))
 
 
 (defn- m [meta-name meta-value]
@@ -141,7 +142,7 @@
       [:link {:rel (name rel) :type (or img-type "image/png"), :href src}])))
 
 
-(defn render-page
+(defn ^String render-page
   "Renders a page with a modern meta set.
 
    Main parameters
@@ -197,7 +198,7 @@
    @param {string}  renderable.twitter-description - twitter card description
    @param {string}  renderable.twitter-image - twitter image link. Twitter images are useu
    @param {string}  renderable.twitter-image-alt - twitter image alt"
-  [renderable]
+  [^Map renderable]
   (let [renderable (-> renderable
                        u/default-manifest+icon
                        cb/cache-bust-assets
@@ -272,9 +273,9 @@
       (hiccup/html (auto-body body (async-sheets stylesheet-async)))
       "</html>")))
 
-(defn respond-page
+(defn ^Map respond-page
   "Renders a page and returns basic Ring response map"
-  [renderable]
+  [^Map renderable]
   {:status  200
    :headers {"Content-Type" "text/html; charset=utf-8"}
    :body    (render-page renderable)})

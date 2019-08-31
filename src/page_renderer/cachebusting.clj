@@ -54,7 +54,7 @@
            "?hash="
            (hash-or-default web-asset-path)))))
 
-(defn cache-bust [web-asset-path-or-coll]
+(defn ^String cache-bust [^String web-asset-path-or-coll]
   (if (coll? web-asset-path-or-coll)
     (map cache-bust-one web-asset-path-or-coll)
     (cache-bust-one web-asset-path-or-coll)))

@@ -1,7 +1,8 @@
 (ns page-renderer.service-worker-generator
   (:require [clojure.string :as s]
             [page-renderer.cachebusting :as fu]
-            [page-renderer.util :as u]))
+            [page-renderer.util :as u])
+  (:import (java.util Map)))
 
 (def ^:private template
 "importScripts('https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js')
@@ -53,12 +54,12 @@ self.addEventListener('install', () => {
 
 
 
-(defn generate-script
+(defn ^String generate-script
   "renderable.sw-default-url {string} – application default url.
     Must be an absolute path like '/app'. Defaults to '/'. Will be used in a regexp.
    renderable.sw-add-assets {collection<string>} - a collection of additional
     assets you want to precache, like [\"/fonts/icon-font.woff\",\"/logo.png\"]"
-  [renderable]
+  [^Map renderable]
   (let [renderable (u/default-manifest+icon renderable)
         sw-assets-to-precache
         (->> (select-keys renderable asset-kws)
@@ -72,12 +73,12 @@ self.addEventListener('install', () => {
                                   :default-url     (:sw-default-url renderable "/")})))
 
 
-(defn generate-ring-response
+(defn ^Map generate-ring-response
   "renderable.sw-default-url {string} – application default url.
     Must be an absolute path like '/app'. Defaults to '/'. Will be used in a regexp.
    renderable.sw-add-assets {collection<string>} - a collection of additional
     assets you want to precache, like [\"/fonts/icon-font.woff\",\"/logo.png\"]"
-  [renderable]
+  [^Map renderable]
   {:body    (generate-script renderable)
    :headers {"Content-Type" "text/javascript; charset=utf-8"}
    :status  200})
