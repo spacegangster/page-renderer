@@ -1,4 +1,4 @@
-(defproject page-renderer "0.4.1"
+(defproject page-renderer "0.4.2"
   :description "A page renderer ready for social networks and PWA"
   :url "https://github.com/spacegangster/page-renderer"
   :license {:name "The MIT License"

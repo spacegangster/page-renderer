@@ -29,8 +29,10 @@ self.addEventListener('message', (event) => {
     }
 })
 
-self.addEventListener('activate', () => {
-    console.log('swm: activated')
+self.addEventListener('activate', (event) => {
+    console.log('swm: activated, claiming clients')
+    event.waitUntil( clients.claim() )
+    console.log('swm: activated, clients claimed')
 })
 
 self.addEventListener('install', () => {

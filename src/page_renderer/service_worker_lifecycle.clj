@@ -22,10 +22,10 @@ if ('serviceWorker' in navigator) {
       onAccept: async () => {
         wb.addEventListener('activated', (event) => {
           console.log('sw-init: activated')
-          window.location.reload();
         })
         wb.addEventListener('controlling', (event) => {
           console.log('sw-init: controlling')
+          window.location.reload();
         });
         wb.messageSW({type: 'SKIP_WAITING'});
       }
