@@ -83,10 +83,10 @@ if ('serviceWorker' in navigator) {
       onAccept: async () => {
         wb.addEventListener('activated', (event) => {
           console.log('sw-init: activated')
-          window.location.reload();
         })
         wb.addEventListener('controlling', (event) => {
           console.log('sw-init: controlling')
+          window.location.reload();
         });
         wb.messageSW({type: 'SKIP_WAITING'});
       }
@@ -95,8 +95,6 @@ if ('serviceWorker' in navigator) {
   wb.register();
 }
 </script><title>Page</title><meta name=\"theme-color\" content=\"white\"><meta property=\"og:title\" content=\"Page\"></head><body><div class=\"page\">a page</div></body></html>")
-
-
 
 (deftest sanity
   (testing "Sanity test"
@@ -136,7 +134,5 @@ if ('serviceWorker' in navigator) {
       (is (and
             (re-find #"<html.*lang=\"en\".*?>" res)
             (re-find #"<meta.*http-equiv=\"Content-Language\".*?/>" res))))))
-
-
 
 ; (run-tests 'page-renderer.core-test)

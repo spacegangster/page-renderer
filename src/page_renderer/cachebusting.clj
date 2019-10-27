@@ -1,7 +1,9 @@
 (ns page-renderer.cachebusting
   (:require [clojure.java.io :as io]
-            [page-renderer.util :as u])
-  (:import (java.security MessageDigest DigestInputStream)))
+            [page-renderer.util :as u]
+            [clojure.string :as s])
+  (:import (java.security MessageDigest DigestInputStream)
+           page_renderer.CacheBustHelper))
 
 
 (def ^:private default-mtime (System/currentTimeMillis))
@@ -15,12 +17,21 @@
       (.lastModified file)
       default-mtime)))
 
+(def ^:private java-version
+  (Integer/parseInt (last (s/split (System/getProperty "java.specification.version") #"\."))))
+
+(def ^:private can-read-all-bytes? (> java-version 8))
+
 (defn hash-resource [r]
   (let [md (MessageDigest/getInstance "MD5")]
     (with-open [is (io/input-stream r)
                 dis (DigestInputStream. is md)]
-      (.readAllBytes dis)
+      (if can-read-all-bytes?
+        (.readAllBytes dis)
+        (CacheBustHelper/readAllBytes dis))
       (u/hexify (.digest md)))))
+
+(hash-resource (io/resource "main.css"))
 
 (defn mtime-or-default [web-asset-path]
   (if-let [resource (io/resource (str "public" web-asset-path))]

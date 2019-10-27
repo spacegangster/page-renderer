@@ -21,15 +21,7 @@
   (testing "Sanity test"
     (is (= ethalon (slash-revision (swg/generate-script sw-params))))))
 
-
 ; (run-tests 'page-renderer.service-worker-generator-test)
 
-
 (comment
-  (spit ethalon-src
-        (slash-revision
-          (swg/generate-script)
-          {:sw-default-url "/app"}
-          :sw-add-assets ["/fonts/icomoon.woff"]
-          :stylesheet-async "/heavy-stuff.css"
-          :script "/lightpad/compiled/app.js")))
+  (spit ethalon-src (slash-revision (swg/generate-script sw-params))))

@@ -1,4 +1,5 @@
 (ns page-renderer.api
+  (:gen-class)
   (:require [page-renderer.core :as core]
             [page-renderer.service-worker-generator :as swg]
             [page-renderer.cachebusting :as fu]))
@@ -14,3 +15,6 @@
 (def generate-service-worker swg/generate-script)
 
 (def respond-service-worker swg/generate-ring-response)
+
+(defn ^String doob [^java.lang.Boolean param]
+  )

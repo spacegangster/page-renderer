@@ -18,7 +18,7 @@ Out of the box:
 
 
 ## Requirements
-- Java 8 or later. Java 9 allows better cache-busting with real content hashing.
+Java 8 or later.
 
 ## Usage
 

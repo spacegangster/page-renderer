@@ -19,15 +19,17 @@ workbox.routing.setCatchHandler(({event}) => {
     console.log('swm: event ', event)
 })
 
-addEventListener('message', (event) => {
+self.addEventListener('message', (event) => {
     if (event.data && event.data.type === 'SKIP_WAITING') {
         console.log('swm: skipping waiting')
-        skipWaiting()
+        self.skipWaiting()
     }
 })
 
-self.addEventListener('activate', () => {
-    console.log('swm: activated')
+self.addEventListener('activate', (event) => {
+    console.log('swm: activated, claiming clients')
+    event.waitUntil( clients.claim() )
+    console.log('swm: activated, clients claimed')
 })
 
 self.addEventListener('install', () => {

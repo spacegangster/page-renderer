@@ -1,5 +1,10 @@
 # Change Log
 
+## [0.4.3] - 2019-10-27
+### Improved
+- Improved hashing on Java 8
+- Better service worker management code with more consistent update
+
 
 ## [0.4.0] - 2019-08-01
 ### Fixed
