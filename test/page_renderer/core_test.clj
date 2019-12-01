@@ -135,4 +135,5 @@ if ('serviceWorker' in navigator) {
             (re-find #"<html.*lang=\"en\".*?>" res)
             (re-find #"<meta.*http-equiv=\"Content-Language\".*?/>" res))))))
 
-; (run-tests 'page-renderer.core-test)
+(comment
+  (run-tests 'page-renderer.core-test))

@@ -21,7 +21,6 @@
   (testing "Sanity test"
     (is (= ethalon (slash-revision (swg/generate-script sw-params))))))
 
-; (run-tests 'page-renderer.service-worker-generator-test)
-
 (comment
+  (run-tests 'page-renderer.service-worker-generator-test)
   (spit ethalon-src (slash-revision (swg/generate-script sw-params))))
