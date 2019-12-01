@@ -24,8 +24,9 @@ workbox.routing.setCatchHandler(({event}) => {
 
 self.addEventListener('message', (event) => {
     if (event.data && event.data.type === 'SKIP_WAITING') {
-        console.log('swm: skipping waiting')
+        console.log('swm: message-received, skipping wait')
         self.skipWaiting()
+        console.log('swm: message-received, skipped wait')
     }
 })
 
@@ -36,7 +37,9 @@ self.addEventListener('activate', (event) => {
 })
 
 self.addEventListener('install', () => {
-    console.log('swm: installed')
+    console.log('swm: installed, skipping wait')
+    self.skipWaiting()
+    console.log('swm: installed, skipped waiting')
 })")
 
 (def ^:private asset-kws
