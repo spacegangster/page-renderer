@@ -294,7 +294,10 @@ roughly equaling the application start time.
 
 ## Where to see in action:
 
-Currently I use it for all my website projects including:
+- [Liverm0r/PWA-clojure](https://github.com/Liverm0r/PWA-clojure) – PWA example by Artur Dumchev
+- [Plus Minus game](https://plusminus.me/app) by Artur Dumchev. [Repo](https://github.com/liverm0r/plusminus.me)
+
+Personally I use it for all my website projects including:
 - [Lightpad.ai](https://lightpad.ai) – includes generated service worker, installable PWA
 - [Spacegangster.io](https://spacegangster.io) – my website
 
