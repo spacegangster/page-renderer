@@ -5,7 +5,7 @@
   (:import (java.util Map)))
 
 (def ^:private template
-"importScripts('https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js')
+ "importScripts('https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js')
 
 workbox.precaching.precacheAndRoute([
     ${precache-assets}
@@ -13,8 +13,8 @@ workbox.precaching.precacheAndRoute([
 
 workbox.routing.registerNavigationRoute(
     workbox.precaching.getCacheKeyForURL('${default-url}'), {
-        whitelist: [ /^\\${default-url}/ ],
-        blacklist: [ /^\\${default-url}\\/service-worker.js/ ]
+        whitelist: [ /${whitelist-regex}/ ],
+        blacklist: [ /${blacklist-regex}/ ]
     }
 )
 
@@ -61,6 +61,14 @@ self.addEventListener('install', () => {
 
 (defn ^String generate-script [^Map renderable]
   (let [renderable (u/default-manifest+icon renderable)
+        default-url ^String (:sw-default-url renderable "/")
+        whitelist-regex (str "^\\\\" default-url)
+        blacklist-regex
+        (str
+          "^\\\\"
+          default-url
+          (if-not (.endsWith default-url "/") "\\\\/")
+          "service-worker\\\\.js")
         sw-assets-to-precache
         (->> (select-keys renderable asset-kws)
              vals
@@ -70,7 +78,9 @@ self.addEventListener('install', () => {
         sw-assets-with-revision (map with-revision sw-assets-to-precache)
         sw-assets-str (s/join ",\n    " (map sw-asset-object sw-assets-with-revision))]
     (u/compile-template template {:precache-assets sw-assets-str
-                                  :default-url     (:sw-default-url renderable "/")})))
+                                  :blacklist-regex   blacklist-regex
+                                  :whitelist-regex   whitelist-regex
+                                  :default-url     default-url})))
 
 
 (defn ^Map generate-ring-response [^Map renderable]
