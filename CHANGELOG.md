@@ -1,5 +1,14 @@
 # Change Log
 
+## [0.4.6] - 2020-03-22
+### Improved
+- 0.4.6 improve docs for page-renderer.api namespace
+
+## [0.4.5] - 2020-03-22
+### Fixed
+- 0.4.5 fix :sw-default-url option for page-renderer.api/generate-service-worker
+  (allow to accept "/" as default)
+
 ## [0.4.3] - 2019-10-27
 ### Improved
 - Improved hashing on Java 8

@@ -1,5 +1,5 @@
 # page-renderer
-##### Clojure PWA made easy. Helps you to create offline-ready web apps with service workers, social meta and async stylesheets.
+Create offline-ready web apps with service workers, social meta and async assets.
 
 [![Clojars Project](https://img.shields.io/clojars/v/page-renderer.svg)](https://clojars.org/page-renderer)
 [![CircleCI](https://circleci.com/gh/spacegangster/page-renderer.svg?style=svg)](https://circleci.com/gh/spacegangster/page-renderer)

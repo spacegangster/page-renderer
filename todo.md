@@ -13,6 +13,7 @@ Support JS init on dom interactive
 = 22 Mar 2020 =
 - 0.4.5 fix service worker default url (allow to accept "/" as default)
 - 0.4.6 improve docs for page-renderer.api namespace
+- update readme and changelog
 
 
 # In progress 
