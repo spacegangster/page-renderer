@@ -142,67 +142,7 @@
       [:link {:rel (name rel) :type (or img-type "image/png"), :href src}])))
 
 
-(defn ^String render-page
-  "Renders a page with a modern meta set.
-
-   Main parameters
-   @param {hash-map} renderable
-   @param {vector} renderable.body - data structure for Hiccup to render into HTML of the document's body
-   @param {string} renderable.title - content for title tag
-   @param {string} renderable.favicon - favicon's url
-   @param {string} renderable.script - script name, will be loaded asynchronously
-   @param {string} renderable.stylesheet - stylesheet filename, will be plugged into the head, will cause
-    browser waiting for download.
-
-   Assets
-   @param {string} renderable.stylesheet-async - stylesheet filename, will be loaded asynchronously by script.
-   @param {string} renderable.garden-css - data structure for Garden CSS
-   @param {string/collection<string>} renderable.stylesheet-inline - stylesheet filename, will be inlined into the head.
-   @param {string} renderable.script-sync - script name, will be loaded synchronously
-   @param {string} renderable.js-module - entry point for JS modules. If you prefer your scripts to be served as modules
-   @param {boolean} renderable.skip-cachebusting? will skip automatic cachebusting if true. Defaults to false.
-   @param {string} renderable.on-dom-interactive-js - a js snippet to run once DOM is interactive or ready.
-
-   PWA related
-   @param {string} renderable.link-image-src - url to image-src
-   @param {string} renderable.link-apple-icon - url to image used for apple-touch-icon link
-   @param {string} renderable.link-apple-startup-image - url to image used for apple-touch-startup-image link
-   @param {string} renderable.theme-color - theme color for PWA (defaults to white)
-   @param {string/boolean} renderable.manifest - truthy value will add a manifest link.
-    If a string is passed – it'll be treated as a manifest url. Otherwise '/manifest.json'
-    will be specified.
-   @param {string/boolean} service-worker - service worker url, defaults to /service-worker.js
-   @param {string} renderable.sw-default-url – application default url.
-    Must be an absolute path like '/app'. Defaults to '/'. Will be used in a regexp.
-   @param {collection<string>} renderable.sw-add-assets - a collection of additional
-    assets you want to precache, like [\"/fonts/icon-font.woff\" \"/logo.png\"]
-
-   More meta
-   @param {string} renderable.lang - when provided will render a meta tag and a document attribute
-    for page language.
-   @param {string} renderable.meta-title - content for title tag (preferred)
-   @param {string} renderable.meta-keywords - content for title tag
-   @param {string} renderable.meta-description - meta description
-   @param {map}    renderable.meta-props – meta which must be rendered as props
-    {'fb:app_id' 123}
-   @param {string} renderable.head-tags - data structure to render into HTML of the document's head
-
-   Open Graph meta
-   @param {string} renderable.og-title - OpenGraph title
-   @param {string} renderable.og-description - OpenGraph description
-   @param {string} renderable.og-image - absolute url to image for OpenGraph
-   @param {string} renderable.og-type
-   @param {string} renderable.og-url - OpenGraph page permalink
-
-   Twitter meta
-   @param {string}  renderable.twitter-site - twitter @username. Required for all Twitter meta to render
-   @param {string}  renderable.twitter-creator - twitter @username.
-   @param {keyword} renderable.twitter-card-type - twitter card type
-    one of #{:summary  :summary_large_image :app :player}
-   @param {string}  renderable.twitter-description - twitter card description
-   @param {string}  renderable.twitter-image - twitter image link. Twitter images are useu
-   @param {string}  renderable.twitter-image-alt - twitter image alt"
-  [^Map renderable]
+(defn render-page ^String [^Map renderable]
   (let [renderable (-> renderable
                        u/default-manifest+icon
                        cb/cache-bust-assets
@@ -277,9 +217,9 @@
       (hiccup/html (auto-body body (async-sheets stylesheet-async)))
       "</html>")))
 
-(defn ^Map respond-page
+(defn respond-page
   "Renders a page and returns basic Ring response map"
-  [^Map renderable]
+  ^Map [^Map renderable]
   {:status  200
    :headers {"Content-Type" "text/html; charset=utf-8"}
    :body    (render-page renderable)})

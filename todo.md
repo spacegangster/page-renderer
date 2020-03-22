@@ -10,14 +10,16 @@ Support JS init on dom interactive
 - service worker generation
 - fix cachebusting hashing, document it
 
+= 22 Mar 2020 =
+- 0.4.5 fix service worker default url (allow to accept "/" as default)
+- 0.4.6 improve docs for page-renderer.api namespace
+
 
 # In progress 
 
 
 # Planned
 - fix doc-attrs treatment for longs and booleans
-- fix service worker for index url
-- ability to disable cachebusting
 
 
 Drop Garden dependency
