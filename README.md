@@ -1,9 +1,10 @@
 # page-renderer
-Create offline-ready web apps with service workers, social meta and async assets.
+Create offline-ready web apps with service workers, social meta, async assets and cache-busting.
 
 [![Clojars Project](https://img.shields.io/clojars/v/page-renderer.svg)](https://clojars.org/page-renderer)
 [![CircleCI](https://circleci.com/gh/spacegangster/page-renderer.svg?style=svg)](https://circleci.com/gh/spacegangster/page-renderer)
 
+So it's like a layer of knowledge about the real world on top of Hiccup.
 
 ## Features
 Out of the box:
@@ -211,61 +212,60 @@ Produces Ring compatible response map with status 200.
 `renderable` – is a map that may have the following fields
 
 ##### Mains
-
-- `@param {hash-map} renderable` - the props map 
-- `@param {vector} renderable.body` - data structure for Hiccup to render into HTML of the document's body
-- `@param {string} renderable.meta-title` - content for title tag (preferred)
-- `@param {string} renderable.title` - content for title tag
-- `@param {string} renderable.meta-keywords` - content for title tag
-- `@param {string} renderable.meta-description` - meta description
-- `@param {map} meta-props` – meta which must be rendered as props.
-    Example `{"fb:app_id" 123}`.
-    For instance, Facebook `app_id` must be renderded as meta property not just meta tag.
-
-##### Open Graph meta
-- `@param {string} renderable.og-title` - OpenGraph title
-- `@param {string} renderable.og-description` - OpenGraph description
-- `@param {string} renderable.og-image` - absolute url to image for OpenGraph
-- `@param {string} renderable.og-type`
-- `@param {string} renderable.og-url` - OpenGraph page permalink
-- `@param {string} renderable.head-tags` - data structure to render into HTML of the document's head
-
-##### Twitter meta
-Twitter meta – if you want it – be sure to include `:twitter-site` or `:twitter-creator`. Or both.
-
-- `@param {string}  renderable.twitter-site` - twitter @username
-- `@param {keyword} renderable.twitter-card-type` - twitter card type
-    one of `#{:summary  :summary_large_image :app :player}`
-- `@param {string}  renderable.twitter-description` - twitter card description
-- `@param {string}  renderable.twitter-image` - twitter image
-- `@param {string}  renderable.twitter-image-alt` - twitter image alt
-
-##### PWA and Service Worker
-- `@param {string} renderable.link-image-src` - url to image-src
-- `@param {string} renderable.link-apple-icon` - url to image used for apple-touch-icon link
-- `@param {string} renderable.link-apple-startup-image` - url to image used for apple-touch-startup-image link
-- `@param {string} renderable.theme-color` - theme color for PWA (defaults to white)
-- `@param {string/boolean} renderable.manifest` - truthy value will add a manifest link.
-   If a string is passed – it'll be treated as a manifest url. Otherwise '/manifest.json'
-   will be specified.
-- `@param {string/boolean} service-worker` - service worker url, defaults to /service-worker.js
-- `@param {string} renderable.sw-default-url` – application default url.
-   Must be an absolute path like '/app'. Defaults to '/'. Will be used in a regexp.
-- `@param {collection<string>} renderable.sw-add-assets` - a collection of additional
-   assets you want to precache, like ["/fonts/icon-font.woff" "/logo.png"]
+-  `^Vector :body`       - a vector for Hiccup to render into HTML of the document's body
+-  `^String :title`      - content for title tag
+-  `^String :favicon`    - favicon's url
+-  `^String :script`     - script name, will be loaded asynchronously
+-  `^String :stylesheet` - stylesheet filename, will be plugged into the head, will cause
+                         browser waiting for download.
 
 ##### Assets
-- `@param {string} renderable.garden-css` - data structure for Garden CSS
-- `@param {string/boolean} renderable.manifest` - truthy value will add a manifest link.
-    If a string is passed – it'll be treated as a manifest url.
-    Otherwise '/manifest.json' will be specified.
-- `@param {string/collection<string>} renderable.stylesheet` - stylesheet filename, will be plugged into the head, will cause
-browser waiting for download.
-- `@param {string/collection<string>} renderable.stylesheet-inline` - stylesheet filename, will be inlined into the head.
-- `@param {string/collection<string>} renderable.stylesheet-async` - stylesheet filename, will be loaded asynchronously by script.
-- `@param {string/collection<string>} renderable.script` - script name, will be loaded asynchronously
-- `@param {string/collection<string>} renderable.script-sync` - script name, will be loaded synchronously
-- `@param {string/collection<string>} renderable.js-module` - entry point for JS modular app. If you prefer your scripts to be served as modules
+-  `^String  :stylesheet-async` - stylesheet filename, will be loaded asynchronously by script.
+-  `^String  :garden-css`       - data structure for Garden CSS
+-  `^String  :script-sync`      - script name, will be loaded synchronously
+-  `^String  :js-module`        - entry point for JS modules. If you prefer your scripts to be served as modules
+-  `^Boolean :skip-cachebusting?`    - will skip automatic cachebusting if set. Defaults to false.
+-  `^String  :on-dom-interactive-js` - a js snippet to run once DOM is interactive or ready.
+-  `^String/Collection<String> :stylesheet-inline` - stylesheet filename, will be inlined into the head.
+
+##### PWA related
+-  `^String  :link-image-src`           - url to image-src
+-  `^String  :link-apple-icon`          - url to image used for apple-touch-icon link
+-  `^String  :link-apple-startup-image` - url to image used for apple-touch-startup-image link
+-  `^String  :theme-color`              - theme color for PWA (defaults to white)
+-  `^String/Boolean :manifest`          - truthy value will add a manifest link
+      If a string is passed – it'll be treated as a manifest url. Otherwise '/manifest.json'
+      will be specified.
+
+-  `^String/Boolean :service-worker` - service worker url, defaults to /service-worker.js
+-  `^String         :sw-default-url` – application default url.
+      Must be an absolute path like '/app'. Defaults to '/'. Will be used in a regexp.
+-  `^List<String>   :sw-add-assets` - a collection of additional
+      assets you want to precache, like ["/fonts/icon-font.woff" "/logo.png"]
+
+##### More meta
+-  `^String :lang`             - when provided will render a meta tag and a document attribute for page language.
+-  `^String :meta-title`       - content for the title tag (preferred)
+-  `^String :meta-keywords`    - content for the keywords tag
+-  `^String :meta-description` - meta description
+-  `^Map    :meta-props`       – meta which must be rendered as props {'fb:app_id' 123}
+-  `^String :head-tags`        - data structure to render into HTML of the document's head
+
+##### Open Graph meta (@link https://ogp.me)
+-  `^String :og-title`       - OpenGraph title
+-  `^String :og-description` - OpenGraph description
+-  `^String :og-image`       - absolute url to image for OpenGraph
+-  `^String :og-type`        - OpenGraph object type
+-  `^String :og-url`         - OpenGraph page permalink
+
+##### Twitter meta (@link https://developer.twitter.com/en/docs/tweets/optimize-with-cards/guides/getting-started)
+-  `^String  :twitter-site`        - Twitter @username. Required for all Twitter meta to render
+-  `^String  :twitter-creator`     - Twitter @username.
+-  `^Keyword :twitter-card-type`   - Twitter card type one of #{:summary  :summary_large_image :app :player}
+-  `^String  :twitter-description` - Twitter card description
+-  `^String  :twitter-image`       - Twitter image link. Twitter images are useu
+-  `^String  :twitter-image-alt`   - Twitter image alt
+
 
 ## Service Worker generation
 `page-renderer` allows you to produce a full-blown offline-ready
