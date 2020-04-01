@@ -21,6 +21,7 @@ Support JS init on dom interactive
 
 # Planned
 - fix doc-attrs treatment for longs and booleans
+- use :service-worker key in blacklist-regex
 
 
 Drop Garden dependency

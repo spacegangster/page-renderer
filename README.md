@@ -302,6 +302,26 @@ Personally I use it for all my website projects including:
 - [Spacegangster.io](https://spacegangster.io) – my website
 
 
+
+## Troubleshooting
+
+If you are using a frontend proxy server like Nginx – don't forget to prevent it from
+serving service-worker as a static asset. My js assets block looks like this
+```nginx
+        location ~ ^(?!/service-worker).*\.(?:js|css|svg)$ {
+                etag off;
+                expires 1y;
+                gzip_vary on;
+                add_header Cache-Control "public";
+                access_log off;
+        }
+```
+Also note the switched off etag. If you use page-renderer you can turn off etag and
+use expires header only for more aggressive caching and preventing avoidable requests.
+See details [in this thread on StackOverflow](https://stackoverflow.com/questions/499966/etag-vs-header-expires).
+
+
+
 ## License
 
 Copyright © 2019 Ivan Fedorov
