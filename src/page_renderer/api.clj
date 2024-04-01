@@ -22,10 +22,11 @@
                          browser waiting for download.
 
    Assets
-   ^String  :stylesheet-async - stylesheet filename, will be loaded asynchronously by script.
-   ^String  :garden-css       - data structure for Garden CSS
-   ^String  :script-sync      - script name, will be loaded synchronously
-   ^String  :js-module        - entry point for JS modules. If you prefer your scripts to be served as modules
+   ^String  :stylesheet-async  - stylesheet filename, will be loaded asynchronously by script.
+   ^String  :garden-css        - data structure for Garden CSS
+   ^Boolean :garden-css-cache? - should Garden CSS be cached.
+   ^String  :script-sync       - script name, will be loaded synchronously
+   ^String  :js-module         - entry point for JS modules. If you prefer your scripts to be served as modules
    ^Boolean :skip-cachebusting?    - will skip automatic cachebusting if set. Defaults to false.
    ^String  :on-dom-interactive-js - a js snippet to run once DOM is interactive or ready.
    ^String/Collection<String> :stylesheet-inline - stylesheet filename, will be inlined into the head.

@@ -31,7 +31,9 @@
         (CacheBustHelper/readAllBytes dis))
       (u/hexify (.digest md)))))
 
-(hash-resource (io/resource "main.css"))
+(comment
+  (hash-resource (io/resource "main.css")))
+
 
 (defn mtime-or-default [web-asset-path]
   (if-let [resource (io/resource (str "public" web-asset-path))]
@@ -59,11 +61,7 @@
 
 (defn cache-bust-one [web-asset-path]
   (if web-asset-path
-    (let []
-
-      (str web-asset-path
-           "?hash="
-           (hash-or-default web-asset-path)))))
+    (str web-asset-path "?hash=" (hash-or-default web-asset-path))))
 
 (defn cache-bust ^String [^String web-asset-path-or-coll]
   (if (coll? web-asset-path-or-coll)

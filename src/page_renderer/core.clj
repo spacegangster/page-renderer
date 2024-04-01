@@ -142,13 +142,22 @@
       [:link {:rel (name rel) :type (or img-type "image/png"), :href src}])))
 
 
+(def garden-mem (memoize garden/css))
+
+(defn render-garden [garden-css cache-garden-css?]
+  (cond
+    (not garden-css) nil
+    cache-garden-css? (garden-mem garden-css)
+    :else (garden/css garden-css)))
+
+
 (defn render-page ^String [^Map renderable]
   (let [renderable (-> renderable
                        u/default-manifest+icon
                        cb/cache-bust-assets
                        provide-default-props)
         {:keys [body title head-tags
-                garden-css
+                garden-css garden-css-cache?
                 stylesheet stylesheet-inline stylesheet-async
                 script script-sync on-dom-interactive-js
                 doc-attrs js-module
@@ -159,7 +168,7 @@
                 livereload-script?]} renderable
         doc-attrs  (u/assoc-some doc-attrs :lang lang)
         title      (or meta-title title)
-        inline-css (if garden-css (garden/css garden-css))]
+        inline-css (render-garden garden-css garden-css-cache?)]
     (str
       "<!DOCTYPE html>"
       "<html " (render-attrs doc-attrs) ">"
