@@ -1,4 +1,4 @@
-name: Clojure CI
+name: Lein Test
 
 on: [push, pull_request]
 

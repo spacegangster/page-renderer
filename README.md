@@ -2,7 +2,7 @@
 Create offline-ready web apps with service workers, social meta, async assets and cache-busting.
 
 [![Clojars Project](https://img.shields.io/clojars/v/page-renderer.svg)](https://clojars.org/page-renderer)
-[![CircleCI](https://circleci.com/gh/spacegangster/page-renderer.svg?style=svg)](https://circleci.com/gh/spacegangster/page-renderer)
+![Tests](https://github.com/spacegangster/page-renderer/actions/workflows/github-test.yml/badge.svg)
 
 So it's like a layer of knowledge about the real world on top of Hiccup.
 
