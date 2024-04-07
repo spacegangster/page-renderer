@@ -1,0 +1,32 @@
+name: Clojure CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup JDK
+      uses: actions/setup-java@v2
+      with:
+        java-version: '11'
+        distribution: 'adopt'
+
+    - name: Cache Maven dependencies
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/project.clj') }}
+        restore-keys: |
+          ${{ runner.os }}-m2-
+
+    - name: Setup Clojure
+      uses: DeLaGuardo/setup-clojure@2.0
+      with:
+        lein: '2.9.5' # Specify the Leiningen version you need
+
+    - name: Run tests
+      run: lein test
