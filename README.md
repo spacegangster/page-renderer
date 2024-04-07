@@ -33,7 +33,8 @@ Java 8 or later.
    :head-tags [[:meta {:name "custom" :property "stuff"}]]
    :stylesheet-async "large-stuff.css" ; injects an async renderer(s)
    :script "/app.js" ; async by default
-   :garden-css [:h1 {:font-size :20px}] ; critical path css
+   :garden-css [:h1 {:font-size :20px}] ; critical path css (or just inline the whole thing)
+   :garden-css-cache? true ; uses simple-dimple memoize cache, so only lives in the lifecycle
 
    ; seo and meta
    :description "Like a notepad but cyberpunk"

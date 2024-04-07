@@ -24,7 +24,7 @@
    Assets
    ^String  :stylesheet-async  - stylesheet filename, will be loaded asynchronously by script.
    ^String  :garden-css        - data structure for Garden CSS
-   ^Boolean :garden-css-cache? - should Garden CSS be cached.
+   ^Boolean :garden-css-cache? - should Garden CSS be cached. (default: false)
    ^String  :script-sync       - script name, will be loaded synchronously
    ^String  :js-module         - entry point for JS modules. If you prefer your scripts to be served as modules
    ^Boolean :skip-cachebusting?    - will skip automatic cachebusting if set. Defaults to false.
