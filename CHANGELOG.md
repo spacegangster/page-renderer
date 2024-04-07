@@ -1,5 +1,10 @@
 # Change Log
 
+## [0.4.7] - 2024-04-01
+### Improved
+- 0.4.7 add garden css caching, this speeds up most use cases 
+
+
 ## [0.4.6] - 2020-03-22
 ### Improved
 - 0.4.6 improve docs for page-renderer.api namespace
