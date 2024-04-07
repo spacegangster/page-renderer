@@ -27,7 +27,7 @@ Java 8 or later.
 (ns pages.home)
 
 (defn page [req]
-   ; essentials
+   ;; essentials
   {:title "Lightpad"
    :body [:body.page [:h1 "Ah, a Page!"]]
    :head-tags [[:meta {:name "custom" :property "stuff"}]]
@@ -36,12 +36,15 @@ Java 8 or later.
    :garden-css [:h1 {:font-size :20px}] ; critical path css (or just inline the whole thing)
    :garden-css-cache? true ; uses simple-dimple memoize cache, so only lives in the lifecycle
 
-   ; seo and meta
+   ;; seo and meta
    :description "Like a notepad but cyberpunk"
-   :og-image "https://lightpad.ai/favicon.png"
    :twitter-site "@lightpad_ai"
 
-   ; PWA stuff
+   ;; images
+   :favicon "https://lightpad.ai/favicon.png"
+   :og-image "https://lightpad.ai/og-image.png"
+
+   ;; PWA stuff
    :manifest    true
    :lang        "en"
    :theme-color "hsl(0, 0%, 96%)"
@@ -216,6 +219,7 @@ Produces Ring compatible response map with status 200.
 -  `^Vector :body`       - a vector for Hiccup to render into HTML of the document's body
 -  `^String :title`      - content for title tag
 -  `^String :favicon`    - favicon's url
+-  `^String :og-image`   - Open Graph image URL
 -  `^String :script`     - script name, will be loaded asynchronously
 -  `^String :stylesheet` - stylesheet filename, will be plugged into the head, will cause
                          browser waiting for download.
@@ -223,6 +227,7 @@ Produces Ring compatible response map with status 200.
 ##### Assets
 -  `^String  :stylesheet-async` - stylesheet filename, will be loaded asynchronously by script.
 -  `^String  :garden-css`       - data structure for Garden CSS
+-  `^String  :garden-css-caching?` - enable memoize Garden CSS (default: false)
 -  `^String  :script-sync`      - script name, will be loaded synchronously
 -  `^String  :js-module`        - entry point for JS modules. If you prefer your scripts to be served as modules
 -  `^Boolean :skip-cachebusting?`    - will skip automatic cachebusting if set. Defaults to false.
