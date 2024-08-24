@@ -1,6 +1,11 @@
 name: Lein Test
 
-on: [push, pull_request]
+on:
+  push:
+    paths:
+      - 'src/**'
+  pull_request:
+
 
 jobs:
   build:
