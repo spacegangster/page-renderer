@@ -1,5 +1,8 @@
 # page-renderer
-Create offline-ready web apps with service workers, social meta, async assets and cache-busting.
+
+Holistic approach for making simple PWAs and complex HTML5 pages from Clojure. 
+Bindings for hiccup and garden (css).
+
 
 [![Clojars Project](https://img.shields.io/clojars/v/page-renderer.svg)](https://clojars.org/page-renderer)
 ![Tests](https://github.com/spacegangster/page-renderer/actions/workflows/github-test.yml/badge.svg)
@@ -8,13 +11,13 @@ So it's like a layer of knowledge about the real world on top of Hiccup.
 
 ## Features
 Out of the box:
-- Meta for SEO, Twitter, Facebook (Open Graph), link sharing
 - Precaching Service Worker generation based on [Workbox](https://developers.google.com/web/tools/workbox/)
+- Cache-busting for local assets
+- That `name="viewport"` meta tag that you need for responsive pages and language tag
+- Meta for SEO, Twitter, Facebook (Open Graph), link sharing
 - Clojure stylesheets with `garden`
 - Clojure markup rendered with `hiccup`
-- Built-in cache-busting for assets
 - Async stylesheets loading
-- And also: that responsive `viewport=something` meta tag and language tag
 
 
 ## Requirements
