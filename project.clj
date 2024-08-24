@@ -1,5 +1,8 @@
-(defproject page-renderer "0.4.7"
-  :description "Clojure PWA made easy. An HTML renderer ready for social networks and PWA"
+(defproject page-renderer "0.4.8"
+  :description
+  "A holistic approach for rendering a modern HTML web app frame.
+   Has bindings for common page meta, PWA, and social meta tags."
+
   :url "https://github.com/spacegangster/page-renderer"
   :license {:name "The MIT License"
             :url "http://opensource.org/licenses/MIT"}

@@ -1,7 +1,7 @@
 (ns page-renderer.api
   (:gen-class)
   (:require [page-renderer.core :as core]
-            [page-renderer.service-worker-generator :as swg]
+            [page-renderer.service-worker-generator :as swg-v6]
             [page-renderer.cachebusting :as fu])
   (:import (java.util Map)))
 
@@ -89,11 +89,11 @@
 
    See render-page for docs on renderable."
   ^String [^Map renderable]
-  (swg/generate-script renderable))
+  (swg-v6/generate-script renderable))
 
 (defn respond-service-worker
   "Generates a Ring response map containing a service worker script as a body.
   See generate-service-worker for more docs"
   ^Map [^Map renderable]
-  (swg/generate-ring-response renderable))
+  (swg-v6/generate-ring-response renderable))
 

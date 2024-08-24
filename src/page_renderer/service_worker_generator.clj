@@ -5,17 +5,30 @@
   (:import (java.util Map)))
 
 (def ^:private template
- "importScripts('https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js')
+ "importScripts('https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-sw.js')
+
+console.log('Service Worker: ', self);
 
 workbox.precaching.precacheAndRoute([
     ${precache-assets}
-], { ignoreURLParametersMatching: [/hash/] })
+], { ignoreURLParametersMatching: [/hash/] });
 
-workbox.routing.registerNavigationRoute(
-    workbox.precaching.getCacheKeyForURL('${default-url}'), {
-        whitelist: [ /${whitelist-regex}/ ],
-        blacklist: [ /${blacklist-regex}/ ]
-    }
+
+// default handler
+const defaultHandler = new workbox.strategies.CacheFirst({
+    cacheName: 'default-handler-cache',
+});
+
+
+// routing
+workbox.routing.registerRoute(
+    new workbox.routing.NavigationRoute(
+        defaultHandler,
+        workbox.precaching.getCacheKeyForURL('${default-url}'), {
+            whitelist: [ /${whitelist-regex}/ ],
+            blacklist: [ /${blacklist-regex}/ ]
+        }
+    )
 )
 
 workbox.routing.setCatchHandler(({event}) => {

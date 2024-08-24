@@ -1,17 +1,30 @@
-importScripts('https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js')
+importScripts('https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-sw.js')
+
+console.log('Service Worker: ', self);
 
 workbox.precaching.precacheAndRoute([
     { url: '/', revision: 'file-hash' },
     { url: '/fonts/icomoon.woff', revision: 'file-hash' },
     { url: '/lightpad/compiled/app.js', revision: 'file-hash' },
     { url: '/favicon.png', revision: 'file-hash' }
-], { ignoreURLParametersMatching: [/hash/] })
+], { ignoreURLParametersMatching: [/hash/] });
 
-workbox.routing.registerNavigationRoute(
-    workbox.precaching.getCacheKeyForURL('/'), {
-        whitelist: [ /^\// ],
-        blacklist: [ /^\/service-worker\.js/ ]
-    }
+
+// default handler
+const defaultHandler = new workbox.strategies.CacheFirst({
+    cacheName: 'default-handler-cache',
+});
+
+
+// routing
+workbox.routing.registerRoute(
+    new workbox.routing.NavigationRoute(
+        defaultHandler,
+        workbox.precaching.getCacheKeyForURL('/'), {
+            whitelist: [ /^\// ],
+            blacklist: [ /^\/service-worker\.js/ ]
+        }
+    )
 )
 
 workbox.routing.setCatchHandler(({event}) => {

@@ -64,37 +64,45 @@ document.head.appendChild(link);
 (def ethalon-page-4
   "<!DOCTYPE html><html ><head><meta charset=\"utf-8\" /><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=5\"><link href=\"/favicon.png?hash=stub\" rel=\"icon\" type=\"image/png\" /><link href=\"/favicon.png?hash=stub\" rel=\"image_src\" type=\"image/png\" /><link href=\"/favicon.png?hash=stub\" rel=\"apple-touch-icon\" type=\"image/png\" /><link href=\"/favicon.png?hash=stub\" rel=\"apple-touch-startup-image\" type=\"image/png\" /><title>Page</title><meta name=\"theme-color\" content=\"white\"><meta property=\"og:title\" content=\"Page\"><link href=\"large-stuff.css?hash=stub\" rel=\"stylesheet\" type=\"text/css\" /><link href=\"large-stuff2.css?hash=stub\" rel=\"stylesheet\" type=\"text/css\" /></head><body><div class=\"page\">a page</div></body></html>")
 
+
 (def ethalon-page-5
   "<!DOCTYPE html><html ><head><meta charset=\"utf-8\" /><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=5\"><link href=\"/favicon.png?hash=stub\" rel=\"icon\" type=\"image/png\" /><link href=\"/favicon.png?hash=stub\" rel=\"image_src\" type=\"image/png\" /><link href=\"/favicon.png?hash=stub\" rel=\"apple-touch-icon\" type=\"image/png\" /><link href=\"/favicon.png?hash=stub\" rel=\"apple-touch-startup-image\" type=\"image/png\" /><script type=\"module\">
 
-import { Workbox } from 'https://storage.googleapis.com/workbox-cdn/releases/4.1.0/workbox-window.prod.mjs';
+import { Workbox } from 'https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-window.prod.mjs';
 
 const promptStr = 'New version of the application is downloaded, do you want to update? May take two reloads.';
 function createUIPrompt(opts) {
-  if (confirm(promptStr)) {
-     opts.onAccept()
-  }
+    if (confirm(promptStr)) {
+        opts.onAccept()
+    }
 }
 
 if ('serviceWorker' in navigator) {
-  const wb = new Workbox('/sw-2.js');
-  wb.addEventListener('waiting', (event) => {
-    const prompt = createUIPrompt({
-      onAccept: async () => {
-        wb.addEventListener('activated', (event) => {
-          console.log('sw-init: activated')
+    const wb = new Workbox('/sw-2.js');
+
+    wb.addEventListener('error', (error) => {
+        console.error('Service Worker registration failed:', error);
+    });
+
+    wb.addEventListener('waiting', (event) => {
+        const prompt = createUIPrompt({
+            onAccept: async () => {
+                wb.addEventListener('activated', (event) => {
+                    console.log('sw-init: activated')
+                })
+                wb.addEventListener('controlling', (event) => {
+                    console.log('sw-init: controlling')
+                    window.location.reload();
+                });
+                wb.messageSW({type: 'SKIP_WAITING'});
+            }
         })
-        wb.addEventListener('controlling', (event) => {
-          console.log('sw-init: controlling')
-          window.location.reload();
-        });
-        wb.messageSW({type: 'SKIP_WAITING'});
-      }
-    })
-  });
-  wb.register();
+    });
+
+    wb.register();
 }
 </script><title>Page</title><meta name=\"theme-color\" content=\"white\"><meta property=\"og:title\" content=\"Page\"></head><body><div class=\"page\">a page</div></body></html>")
+
 
 (deftest sanity
   (testing "Sanity test"

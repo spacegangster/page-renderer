@@ -203,7 +203,7 @@
            (on-dom-interactive-fragment on-dom-interactive-js))
 
          (if service-worker
-           (swl/sw-script2 service-worker))
+           (swl/sw-script-v6 service-worker))
 
          (seq head-tags)
          ;
